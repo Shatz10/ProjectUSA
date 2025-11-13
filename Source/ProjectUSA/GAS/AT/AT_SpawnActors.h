@@ -11,7 +11,19 @@
 
 
 /**
+ * 生成 Actor 的任务（用于特效、碰撞体等）
  * 
+ * 核心功能:
+ * - 基于时间段生成多个 Actor
+ * - 每个时间段可以配置：
+ *   - Actor 类
+ *   - 生成位置偏移
+ *   - 旋转
+ *   - 缩放
+ * - 支持目标向量方向计算生成位置
+ * - 服务器端执行（权威性）
+ * 
+ * 使用场景: 生成特效、生成碰撞体、生成投射物
  */
 UCLASS()
 class PROJECTUSA_API UAT_SpawnActors : public UUSAAbilityTask

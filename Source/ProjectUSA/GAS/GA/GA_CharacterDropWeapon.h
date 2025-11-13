@@ -13,7 +13,9 @@
 #include "GA_CharacterDropWeapon.generated.h"
 
 /**
+ * 角色丢弃武器能力
  * 
+ * 使用场景: 丢弃当前武器
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterDropWeapon : public UUSAGameplayAbility

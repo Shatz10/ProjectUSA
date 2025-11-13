@@ -7,7 +7,9 @@
 #include "GA_CheckCharacterCeiling.generated.h"
 
 /**
+ * 检查角色是否碰到天花板的能力
  * 
+ * 使用场景: 用于需要检测天花板碰撞的能力
  */
 UCLASS()
 class PROJECTUSA_API UGA_CheckCharacterCeiling : public UUSAGameplayAbility

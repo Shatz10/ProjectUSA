@@ -9,9 +9,15 @@
 #include "AT_MoveToLocationByVelocity.generated.h"
 
 /**
+ * 通过速度移动到指定位置的任务
  * 
+ * 核心功能:
+ * - 基于曲线（CurveFloat/CurveVector）的平滑移动
+ * - 移动完成后应用后续速度（AfterVelocity）
+ * - 继承自 UAbilityTask_MoveToLocation，提供网络同步支持
+ * 
+ * 使用场景: 冲刺、技能位移、移动到目标位置
  */
-
 UCLASS()
 class PROJECTUSA_API UAT_MoveToLocationByVelocity : public UAbilityTask_MoveToLocation
 {

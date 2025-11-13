@@ -10,7 +10,16 @@
 #include "GA_CharacterSlide.generated.h"
 
 /**
+ * 角色滑行能力（如滑铲）
  * 
+ * 核心功能:
+ * - 检测斜坡和天花板，根据环境应用不同的游戏效果
+ * - 支持输入按下/释放来控制滑行
+ * - 检测地面离开事件
+ * - 可配置滑行起始力度、持续时间、角度
+ * - 临时改变角色移动参数（降低摩擦力等）
+ * 
+ * 使用场景: 滑铲、滑行动作
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterSlide : public UUSAGameplayAbility

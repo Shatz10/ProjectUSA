@@ -7,7 +7,9 @@
 #include "AT_MaintainCharacterVelocity.generated.h"
 
 /**
+ * 维持角色速度的任务
  * 
+ * 使用场景: 保持角色在特定方向上的速度
  */
 UCLASS()
 class PROJECTUSA_API UAT_MaintainCharacterVelocity : public UUSAAbilityTask

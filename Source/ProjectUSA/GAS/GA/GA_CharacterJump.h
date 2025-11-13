@@ -10,7 +10,15 @@
 #include "GA_CharacterJump.generated.h"
 
 /**
+ * 角色跳跃能力
  * 
+ * 核心功能:
+ * - 检查是否可以跳跃（CanActivateAbility）
+ * - 支持按住跳跃（输入释放时结束）
+ * - 可配置自定义跳跃力度和最大按住时间
+ * - 播放跳跃动画
+ * 
+ * 使用场景: 角色跳跃动作
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterJump : public UUSAGameplayAbility

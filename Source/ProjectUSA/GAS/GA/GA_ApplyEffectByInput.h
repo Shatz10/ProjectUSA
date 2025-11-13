@@ -11,7 +11,14 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FUSAGASDynamicGameplayTagDelegate, const FG
 
 
 /**
+ * 通过输入应用游戏效果的能力
  * 
+ * 核心功能:
+ * - 监听输入按下/释放事件
+ * - 根据输入状态应用游戏效果
+ * - 跟踪输入是否被按下一次
+ * 
+ * 使用场景: 需要根据输入状态触发效果的能力
  */
 UCLASS()
 class PROJECTUSA_API UGA_ApplyEffectByInput : public UUSAGameplayAbility

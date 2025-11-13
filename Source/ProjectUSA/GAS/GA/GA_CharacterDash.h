@@ -11,7 +11,15 @@
 //DECLARE_MULTICAST_DELEGATE(FOnSimpleDeletage)
 
 /**
+ * 角色冲刺/闪避能力
  * 
+ * 核心功能:
+ * - 支持输入按下/释放事件
+ * - 基于曲线（CurveFloat/CurveVector）的冲刺移动
+ * - 可配置的冲刺距离、持续时间、后续速度
+ * - 播放冲刺动画蒙太奇
+ * 
+ * 使用场景: 闪避、快速移动
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterDash : public UUSAGameplayAbility

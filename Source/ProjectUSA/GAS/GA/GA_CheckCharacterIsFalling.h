@@ -7,7 +7,9 @@
 #include "GA_CheckCharacterIsFalling.generated.h"
 
 /**
+ * 检查角色是否在掉落的能力
  * 
+ * 使用场景: 用于需要检测掉落状态的能力
  */
 UCLASS()
 class PROJECTUSA_API UGA_CheckCharacterIsFalling : public UUSAGameplayAbility

@@ -13,7 +13,14 @@
 #include "GA_CharacterUseItem.generated.h"
 
 /**
+ * 角色使用物品能力
  * 
+ * 核心功能:
+ * - 在指定时机调用角色的使用物品方法
+ * - 临时改变角色移动参数
+ * - 提供蓝图可实现的激活/取消/结束事件
+ * 
+ * 使用场景: 使用消耗品、道具等
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterUseItem : public UUSAGameplayAbility

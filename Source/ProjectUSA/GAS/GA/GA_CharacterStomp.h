@@ -10,7 +10,19 @@
 #include "GA_CharacterStomp.generated.h"
 
 /**
+ * 角色踩踏/下砸能力
  * 
+ * 核心功能:
+ * - 支持输入按下/释放
+ * - 分阶段应用游戏效果：
+ *   - PreGameplayEffects: 准备阶段
+ *   - ActiveGameplayEffects: 激活阶段
+ *   - EndGameplayEffects: 结束阶段
+ *   - PostGameplayEffects: 后置阶段
+ * - 可配置移动速度、前后延迟
+ * - 播放踩踏动画
+ * 
+ * 使用场景: 空中下砸攻击、重击地面
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterStomp : public UUSAGameplayAbility

@@ -12,7 +12,16 @@
 //
 
 /**
+ * 检查角色是否在斜坡上的任务
  * 
+ * 核心功能:
+ * - 检测角色前方是否有斜坡（基于角度）
+ * - 触发事件：
+ *   - OnSlopeTrue: 检测到斜坡
+ *   - OnSlopeFalse: 不在斜坡上
+ *   - OnGroundOut: 离开地面
+ * 
+ * 使用场景: 滑行能力、斜坡相关动作
  */
 UCLASS()
 class PROJECTUSA_API UAT_CheckCharacterSlope : public UUSAAbilityTask

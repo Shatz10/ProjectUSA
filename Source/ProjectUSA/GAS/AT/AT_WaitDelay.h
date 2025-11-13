@@ -7,7 +7,9 @@
 #include "AT_WaitDelay.generated.h"
 
 /**
+ * 延迟等待任务
  * 
+ * 使用场景: 简单的延迟功能
  */
 UCLASS()
 class PROJECTUSA_API UAT_WaitDelay : public UUSAAbilityTask

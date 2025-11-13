@@ -13,7 +13,15 @@
 
 
 /**
+ * 检查角色是否碰到天花板的任务
  * 
+ * 核心功能:
+ * - 使用球体检测角色上方是否有天花板
+ * - 触发事件：
+ *   - OnCeilingTrue: 检测到天花板
+ *   - OnCeilingFalse: 没有天花板
+ * 
+ * 使用场景: 滑行能力、防止角色卡在天花板
  */
 UCLASS()
 class PROJECTUSA_API UAT_CheckCharacterCeiling : public UUSAAbilityTask

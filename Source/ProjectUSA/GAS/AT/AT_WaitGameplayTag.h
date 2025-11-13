@@ -7,7 +7,11 @@
 #include "AT_WaitGameplayTag.generated.h"
 
 /**
+ * 等待游戏标签的基础类
  * 
+ * 核心功能:
+ * - 监听游戏标签的变化
+ * - 支持只触发一次或持续监听
  */
 UCLASS()
 class PROJECTUSA_API UAT_WaitGameplayTag : public UUSAAbilityTask
@@ -37,6 +41,15 @@ protected:
 
 /// ====================================================================================================
 
+/**
+ * 等待游戏标签被添加的任务
+ * 
+ * 核心功能:
+ * - 当指定标签被添加时触发 Added 事件
+ * - 如果标签已存在，立即触发
+ * 
+ * 使用场景: 等待特定状态、等待连击窗口打开
+ */
 UCLASS()
 class PROJECTUSA_API UAT_WaitGameplayTagAdded : public UAT_WaitGameplayTag
 {
@@ -60,6 +73,14 @@ public:
 
 /// ====================================================================================================
 
+/**
+ * 等待游戏标签被移除的任务
+ * 
+ * 核心功能:
+ * - 当指定标签被移除时触发 Removed 事件
+ * 
+ * 使用场景: 等待状态结束、等待连击窗口关闭
+ */
 UCLASS()
 class PROJECTUSA_API UAT_WaitGameplayTagRemoved : public UAT_WaitGameplayTag
 {

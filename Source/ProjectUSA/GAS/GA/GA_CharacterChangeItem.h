@@ -7,7 +7,14 @@
 #include "GA_CharacterChangeItem.generated.h"
 
 /**
+ * 角色切换物品能力
  * 
+ * 核心功能:
+ * - 切换到下一个或上一个物品
+ * - 调用角色的切换物品方法
+ * - 提供蓝图可实现的激活/取消/结束事件
+ * 
+ * 使用场景: 切换武器、道具栏切换
  */
 UCLASS()
 class PROJECTUSA_API UGA_CharacterChangeItem : public UUSAGameplayAbility

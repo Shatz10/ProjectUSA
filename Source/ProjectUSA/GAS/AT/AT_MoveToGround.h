@@ -12,7 +12,9 @@
 ////DECLARE_MULTICAST_DELEGATE(FOnEndTask);
 
 /**
+ * 移动到地面的任务
  * 
+ * 使用场景: 确保角色贴地、落地检测
  */
 UCLASS()
 class PROJECTUSA_API UAT_MoveToGround : public UUSAAbilityTask

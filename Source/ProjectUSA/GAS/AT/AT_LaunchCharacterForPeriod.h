@@ -7,7 +7,14 @@
 #include "AT_LaunchCharacterForPeriod.generated.h"
 
 /**
+ * 在指定时间内发射角色的任务
  * 
+ * 核心功能:
+ * - 可配置 XY 和 Z 轴的速度覆盖
+ * - 在指定时间内持续应用发射速度
+ * - 支持 Tick 更新，精确控制发射时间
+ * 
+ * 使用场景: 击飞、跳跃、技能位移
  */
 UCLASS()
 class PROJECTUSA_API UAT_LaunchCharacterForPeriod : public UUSAAbilityTask

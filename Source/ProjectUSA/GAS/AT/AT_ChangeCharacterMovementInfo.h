@@ -11,7 +11,14 @@
 
 
 /**
+ * 改变角色移动参数的任务
  * 
+ * 核心功能:
+ * - 临时改变角色的移动参数（速度、摩擦力、重力等）
+ * - 任务结束时自动恢复原始参数
+ * - 支持取消时恢复
+ * 
+ * 使用场景: 滑行、冲刺、特殊移动状态
  */
 UCLASS()
 class PROJECTUSA_API UAT_ChangeCharacterMovementInfo : public UUSAAbilityTask
