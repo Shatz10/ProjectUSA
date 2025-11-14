@@ -5,6 +5,8 @@
 
 #include "CoreMinimal.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogProjectUSA, Log, All);
+
 //#include "Engine.h"
 
 

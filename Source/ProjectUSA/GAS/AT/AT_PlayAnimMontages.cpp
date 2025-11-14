@@ -14,6 +14,8 @@
 
 #include "ProjectUSA.h"
 
+#include "UObject/UObjectGlobals.h"
+
 
 UAT_PlayAnimMontages* UAT_PlayAnimMontages::GetNewAbilityTask_PlayAnimMontages(UGameplayAbility* OwningAbility, const FPlayAnimMontageData& AnimMontageData)
 {
@@ -45,6 +47,11 @@ void UAT_PlayAnimMontages::Activate()
 		SimpleCancelAbilityTask();
 		return;
 	}
+
+	UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] Activate. Ability=%s Montage=%s"),
+		*GetNameSafe(this),
+		*GetNameSafe(Ability),
+		*GetNameSafe(PlayAnimMontageData->AnimMontage));
 
 	if (PlayAnimMontageData->AnimMontage == nullptr)
 	{
@@ -80,6 +87,17 @@ void UAT_PlayAnimMontages::Activate()
 			if (ASC->HasMatchingGameplayTag(TagAdded))
 			{
 				StartSectionName = PlayAnimMontageData->AnimMontageSectionMapByGameplayTagAdded[TagAdded];
+				UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] Tag %s already present. Using section %s as start."),
+					*GetNameSafe(this),
+					*TagAdded.ToString(),
+					*StartSectionName.ToString());
+			}
+			else
+			{
+				UE_LOG(LogProjectUSA, Verbose, TEXT("[AT_PlayAnimMontages][%s] Listening for tag add %s -> section %s"),
+					*GetNameSafe(this),
+					*TagAdded.ToString(),
+					*PlayAnimMontageData->AnimMontageSectionMapByGameplayTagAdded[TagAdded].ToString());
 			}
 		}
 
@@ -90,6 +108,10 @@ void UAT_PlayAnimMontages::Activate()
 		{
 			FDelegateHandle DelegateHandle = ASC->RegisterGameplayTagEvent(TagRemoved).AddUObject(this, &UAT_PlayAnimMontages::OnAnimSectionGameplayTagRemoved);
 			DelegateHandles.Add({ TagRemoved, DelegateHandle });
+			UE_LOG(LogProjectUSA, Verbose, TEXT("[AT_PlayAnimMontages][%s] Listening for tag remove %s -> section %s"),
+				*GetNameSafe(this),
+				*TagRemoved.ToString(),
+				*PlayAnimMontageData->AnimMontageSectionMapByGameplayTagRemoved[TagRemoved].ToString());
 		}
 	}
 
@@ -105,12 +127,21 @@ void UAT_PlayAnimMontages::Activate()
 			StartSectionName))
 		{
 			bPlayedMontage = true;
+			UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] Montage started. Character=%s Section=%s Rate=%.2f"),
+				*GetNameSafe(this),
+				*GetNameSafe(MyCharacter),
+				*StartSectionName.ToString(),
+				PlayAnimMontageData->AnimMontageRate);
 		}
 	}
 
 	// 如果播放失败，取消任务
 	if (!bPlayedMontage)
 	{
+		UE_LOG(LogProjectUSA, Warning, TEXT("[AT_PlayAnimMontages][%s] Failed to play montage. Character=%s Montage=%s"),
+			*GetNameSafe(this),
+			*GetNameSafe(MyCharacter),
+			*GetNameSafe(PlayAnimMontageData->AnimMontage));
 		SimpleCancelAbilityTask();
 		return;
 	}
@@ -154,6 +185,10 @@ void UAT_PlayAnimMontages::SimpleEndAbilityTask()
 	{
 		if (MyCharacter->GetCurrentMontage() == PlayAnimMontageData->AnimMontage)
 		{
+			UE_LOG(LogProjectUSA, Verbose, TEXT("[AT_PlayAnimMontages][%s] SimpleEnd. bStopWhenFinished=%s EndMontage=%s"),
+				*GetNameSafe(this),
+				PlayAnimMontageData->bIsStopWhenFinished ? TEXT("true") : TEXT("false"),
+				*GetNameSafe(PlayAnimMontageData->EndAnimMontage));
 			if (PlayAnimMontageData->bIsStopWhenFinished == true)
 			{
 				MyCharacter->StopAnimMontage();
@@ -180,6 +215,7 @@ void UAT_PlayAnimMontages::SimpleEndAbilityTask()
 
 void UAT_PlayAnimMontages::SimpleCancelAbilityTask()
 {
+	UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] SimpleCancelAbilityTask."), *GetNameSafe(this));
 	StopPlayingMontage();
 	
 	Super::SimpleCancelAbilityTask();
@@ -190,6 +226,11 @@ void UAT_PlayAnimMontages::OnAnimSectionGameplayTagAdded(FGameplayTag InTag, int
 	// 当标签计数大于0时（标签被添加或计数增加）
 	if (NewCount > 0)
 	{
+		UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] TagAdded %s Count=%d"),
+			*GetNameSafe(this),
+			*InTag.ToString(),
+			NewCount);
+
 		ACharacter* MyCharacter = nullptr;
 
 		if (Ability != nullptr)
@@ -212,6 +253,9 @@ void UAT_PlayAnimMontages::OnAnimSectionGameplayTagAdded(FGameplayTag InTag, int
 
 		// 停止当前动画并切换到新章节
 		// 这是连击系统的核心：当玩家在连击窗口内按下攻击键时，添加标签，触发切换到连击章节
+		UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] Switching montage section (TagAdded). Section=%s"),
+			*GetNameSafe(this),
+			*SectionName.ToString());
 		MyCharacter->StopAnimMontage();
 		MyCharacter->PlayAnimMontage
 		(PlayAnimMontageData->AnimMontage,
@@ -225,6 +269,11 @@ void UAT_PlayAnimMontages::OnAnimSectionGameplayTagRemoved(const FGameplayTag In
 	// 当标签计数小于等于0时（标签被移除或计数减少到0）
 	if (NewCount <= 0)
 	{
+		UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] TagRemoved %s Count=%d"),
+			*GetNameSafe(this),
+			*InTag.ToString(),
+			NewCount);
+
 		ACharacter* MyCharacter = nullptr;
 
 		if (Ability != nullptr)
@@ -247,6 +296,9 @@ void UAT_PlayAnimMontages::OnAnimSectionGameplayTagRemoved(const FGameplayTag In
 
 		// 停止当前动画并切换到新章节
 		// 这是恢复动作的核心：当连击窗口关闭时，移除标签，触发恢复到默认章节
+		UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] Switching montage section (TagRemoved). Section=%s"),
+			*GetNameSafe(this),
+			*SectionName.ToString());
 		MyCharacter->StopAnimMontage();
 		MyCharacter->PlayAnimMontage
 		(PlayAnimMontageData->AnimMontage,
@@ -295,6 +347,10 @@ bool UAT_PlayAnimMontages::StopPlayingMontage()
 		{
 			MyCharacter->StopAnimMontage();
 			
+			UE_LOG(LogProjectUSA, Log, TEXT("[AT_PlayAnimMontages][%s] StopPlayingMontage. Character=%s Montage=%s"),
+				*GetNameSafe(this),
+				*GetNameSafe(MyCharacter),
+				*GetNameSafe(PlayAnimMontageData->AnimMontage));
 			return true;
 		}
 	}
@@ -326,6 +382,9 @@ void UAT_PlayAnimMontages::OnDestroy(bool AbilityIsEnding)
 		for (FGameplayTag Tag : KeyArray)
 		{
 			ASC->RegisterGameplayTagEvent(Tag).Remove(DelegateHandles[Tag]);
+			UE_LOG(LogProjectUSA, Verbose, TEXT("[AT_PlayAnimMontages][%s] Removed tag listener %s"),
+				*GetNameSafe(this),
+				*Tag.ToString());
 		}
 	}
 }

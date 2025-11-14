@@ -28,6 +28,8 @@
 
 #include "AbilitySystemComponent.h"
 
+#include "UObject/UObjectGlobals.h"
+
 #include "ProjectUSA.h"
 
 
@@ -36,9 +38,16 @@ void UGA_CharacterAction::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	// 调用父类激活函数（初始化基础数据）
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] ActivateAbility. Avatar=%s EventTag=%s TargetActor=%s"),
+		*GetNameSafe(this),
+		*GetNameSafe(GetAvatarActorFromActorInfo()),
+		TriggerEventData ? *TriggerEventData->EventTag.ToString() : TEXT("None"),
+		(TriggerEventData && TriggerEventData->Target != nullptr) ? *GetNameSafe(TriggerEventData->Target.Get()) : TEXT("None"));
+
 	// 检查激活条件（角色和移动组件是否存在）
 	if (GetIsAbleToActivateCondition() == false)
 	{
+		UE_LOG(LogProjectUSA, Warning, TEXT("[GA_CharacterAction][%s] ActivateAbility failed: activation condition not met."), *GetNameSafe(this));
 		SimpleEndAbility();
 		return;
 	}
@@ -52,6 +61,10 @@ void UGA_CharacterAction::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 	// 检查中断条件（在激活的第一帧就检查，如果满足条件立即结束）
 	// 例如：如果设置了"当标签被添加时中断"，且标签已经存在，则立即结束
+	UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Checking immediate interrupt. InterruptType=%d Tag=%s"),
+		*GetNameSafe(this),
+		static_cast<int32>(InterruptType),
+		InterruptGameplayTag.IsValid() ? *InterruptGameplayTag.ToString() : TEXT("None"));
 	if (InterruptGameplayTag.IsValid() == true
 		&& IsValid(GetAbilitySystemComponentFromActorInfo()) == true)
 	{
@@ -81,6 +94,7 @@ void UGA_CharacterAction::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 
 	// 调用蓝图事件（可在蓝图中实现自定义逻辑，如播放音效、特效等）
+	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Calling BP Activate hook."), *GetNameSafe(this));
 	K2_DoSomething_Activate();
 }
 
@@ -92,6 +106,7 @@ void UGA_CharacterAction::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 	ResetArmorAttributeToBase();
 
 	// 블루프린트에서 지정한 Cancel 수행
+	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Calling BP Cancel hook."), *GetNameSafe(this));
 	K2_DoSomething_Cancel();
 }
 
@@ -103,6 +118,9 @@ void UGA_CharacterAction::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 	ResetArmorAttributeToBase();
 
 	// 블루프린트에서 지정한 End 수행
+	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Calling BP End hook. bWasCancelled=%s"),
+		*GetNameSafe(this),
+		bWasCancelled ? TEXT("true") : TEXT("false"));
 	K2_DoSomething_End();
 }
 
@@ -120,6 +138,10 @@ void UGA_CharacterAction::CalculateTargetVector()
 		MyCharacter = Cast <ACharacter>(CurrentActorInfo->AvatarActor);
 	}
 
+	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] CalculateTargetVector. Character=%s"),
+		*GetNameSafe(this),
+		*GetNameSafe(MyCharacter));
+
 	if (MyCharacter != nullptr)
 	{
 		MyUSACharacter = Cast <AUSACharacterBase>(MyCharacter);
@@ -135,6 +157,11 @@ void UGA_CharacterAction::CalculateTargetVector()
 	{	
 		MyUSACharacter->UpdateCurrentTargetableActor_Instant();
 	}
+
+	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Default TargetVector_Move=%s TargetVector_Attack=%s"),
+		*GetNameSafe(this),
+		*TargetVector_Move.ToString(),
+		*TargetVector_Attack.ToString());
 
 	// ========================================================================================
 	// 第二步：计算目标相关数据（如果有目标的话）
@@ -154,6 +181,9 @@ void UGA_CharacterAction::CalculateTargetVector()
 
 		// 获取目标位置
 		FVector TargetableActorLocation = AttackableInterface->GetTargetableActorLocation();
+		UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Target acquired. Location=%s"),
+			*GetNameSafe(this),
+			*TargetableActorLocation.ToString());
 
 		// 计算攻击方向（从角色指向目标）
 		TargetVector_Attack = (TargetableActorLocation - MyCharacter->GetActorLocation());
@@ -173,6 +203,16 @@ void UGA_CharacterAction::CalculateTargetVector()
 
 		// 判断目标是否在移动范围内
 		bIsFinalMoveToTargetAction = (TempDistance <= MoveToTargetRange);
+
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Target distance=%.2f MoveToTargetRange=%.2f bIsFinalMoveToTargetAction=%s"),
+			*GetNameSafe(this),
+			TempDistance,
+			MoveToTargetRange,
+			bIsFinalMoveToTargetAction ? TEXT("true") : TEXT("false"));
+	}
+	else
+	{
+		UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] No target interface or targetable actor."), *GetNameSafe(this));
 	}
 
 	// ========================================================================================
@@ -198,6 +238,13 @@ void UGA_CharacterAction::CalculateTargetVector()
 		// 计算实际移动距离（减去两个半径和间隙，防止重叠）
 		TargetDistance = FMath::Max(TempDistance - TargetRadius - SourceRadius - MoveToTargetGap, 0.0f);
 		TargetVector_Move = TempVector; // 移动方向指向目标
+
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Magnet move. TargetRadius=%.2f SourceRadius=%.2f Gap=%.2f TargetDistance=%.2f"),
+			*GetNameSafe(this),
+			TargetRadius,
+			SourceRadius,
+			MoveToTargetGap,
+			TargetDistance);
 	}
 	// 情况2：自定义移动 - 移动到角色指定的自定义位置
 	else if (MoveType == ECharacterActionMoveType::Custom)
@@ -208,6 +255,11 @@ void UGA_CharacterAction::CalculateTargetVector()
 		TargetVector_Move = (CustomLocation - MyCharacter->GetActorLocation());
 		TargetVector_Move.Normalize();
 		TargetDistance = (CustomLocation - MyCharacter->GetActorLocation()).Length();
+
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Custom move. Location=%s Distance=%.2f"),
+			*GetNameSafe(this),
+			*CustomLocation.ToString(),
+			TargetDistance);
 	}
 	// 情况3：其他移动类型（Move、Walk、Launch等）- 根据方向类型计算
 	else
@@ -267,6 +319,13 @@ void UGA_CharacterAction::CalculateTargetVector()
 			// 不改变移动向量（保持为角色朝向）
 			break;
 		}
+
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Final move vector=%s TargetDistance=%.2f MoveType=%d DirectionType=%d"),
+			*GetNameSafe(this),
+			*TargetVector_Move.ToString(),
+			TargetDistance,
+			static_cast<int32>(MoveType),
+			static_cast<int32>(DirectionType));
 	}	
 }
 
@@ -290,6 +349,12 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	{
 		MyCharacter = Cast <ACharacter>(CurrentActorInfo->AvatarActor);
 	}
+
+	UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] DoSomethingWithTargetVector. Character=%s MoveType=%d TargetDistance=%.2f"),
+		*GetNameSafe(this),
+		*GetNameSafe(MyCharacter),
+		static_cast<int32>(MoveType),
+		TargetDistance);
 
 	if (MyCharacter != nullptr)
 	{
@@ -333,6 +398,11 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 			SpringArmComponent->SetWorldTransform(SprintArmComponentTransform);
 		}
 
+		UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Orientation updated. Forward=%s Right=%s"),
+			*GetNameSafe(this),
+			*ForwardDirection.ToString(),
+			*RightDirection.ToString());
+
 		// 声明移动任务变量
 		UAT_MoveToLocationByVelocity* AbilityTask_MoveToLocation;
 		UAT_LaunchCharacterForPeriod* AbilityTask_LaunchCharacter;
@@ -359,6 +429,12 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 			(this, TEXT("MoveToTarget"), EndLocation, AfterVelocity, MoveToTargetDuration, MoveToTargetCurveFloat, MoveToTargetCurveVector);
 
 			AbilityTask_MoveToLocation->ReadyForActivation();
+
+			UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Started MoveToTarget task. EndLocation=%s AfterVelocity=%s Duration=%.2f"),
+				*GetNameSafe(this),
+				*EndLocation.ToString(),
+				*AfterVelocity.ToString(),
+				MoveToTargetDuration);
 		}
 		// 情况2：根据MoveType执行不同的移动
 		else
@@ -383,6 +459,12 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 				(this, TEXT("Move"), EndLocation, AfterVelocity, MoveDuration, MoveCurveFloat, nullptr);
 
 				AbilityTask_MoveToLocation->ReadyForActivation();
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Started Move task. Offset=%s EndLocation=%s AfterVelocity=%s Duration=%.2f"),
+					*GetNameSafe(this),
+					*MoveOffsetLocation.ToString(),
+					*EndLocation.ToString(),
+					*AfterVelocity.ToString(),
+					MoveDuration);
 				break;
 
 			case ECharacterActionMoveType::Walk:
@@ -393,6 +475,8 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 				OnEndAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleEndAbilityTask);
 				OnCancelAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleCancelAbilityTask);
 				AbilityTask_ChangeMovementInfo->ReadyForActivation();
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Started Walk task with custom movement info."),
+					*GetNameSafe(this));
 				break;
 
 			case ECharacterActionMoveType::Launch:
@@ -407,6 +491,12 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 				(this, FinalLaunchVector, bMoveLaunchXYOverride, bMoveLaunchZOverride, MoveLaunchPeriod);
 
 				AbilityTask_LaunchCharacter->ReadyForActivation();
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Started Launch task. LaunchVector=%s Period=%.2f OverrideXY=%s OverrideZ=%s"),
+					*GetNameSafe(this),
+					*FinalLaunchVector.ToString(),
+					MoveLaunchPeriod,
+					bMoveLaunchXYOverride ? TEXT("true") : TEXT("false"),
+					bMoveLaunchZOverride ? TEXT("true") : TEXT("false"));
 				break;
 
 			case ECharacterActionMoveType::Custom:
@@ -421,6 +511,11 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 				(this, TEXT("CustomMove"), EndLocation, AfterVelocity, CustomMoveDuration, CustomMoveCurveFloat, CustomMoveCurveVector);
 
 				AbilityTask_MoveToLocation->ReadyForActivation();
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Started CustomMove task. EndLocation=%s AfterVelocity=%s Duration=%.2f"),
+					*GetNameSafe(this),
+					*EndLocation.ToString(),
+					*AfterVelocity.ToString(),
+					CustomMoveDuration);
 				break;
 
 			case ECharacterActionMoveType::None:
@@ -428,6 +523,11 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 				// 不执行移动
 				break;
 			}
+
+			UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Movement branch finished. EndLocation=%s AfterVelocity=%s"),
+				*GetNameSafe(this),
+				*EndLocation.ToString(),
+				*AfterVelocity.ToString());
 		}
 	}
 
@@ -443,6 +543,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	case ECharacterActionEndType::WaitTagAdded:
 		// 等待标签被添加时结束
 		WaitGameplayTagAdded = UAT_WaitGameplayTagAdded::GetNewAbilityTask_WaitGameplayTagAdded(this, EndGameplayTag);
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] End condition: WaitTagAdded %s"),
+			*GetNameSafe(this),
+			*EndGameplayTag.ToString());
 		WaitGameplayTagAdded->Added.AddDynamic(this, &UGA_CharacterAction::SimpleEndAbility);
 		WaitGameplayTagAdded->ReadyForActivation();
 		break;
@@ -450,6 +553,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	case ECharacterActionEndType::WaitTagRemoved:
 		// 等待标签被移除时结束
 		WaitGameplayTagRemoved = UAT_WaitGameplayTagRemoved::GetNewAbilityTask_WaitGameplayTagRemoved(this, EndGameplayTag);
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] End condition: WaitTagRemoved %s"),
+			*GetNameSafe(this),
+			*EndGameplayTag.ToString());
 		WaitGameplayTagRemoved->Removed.AddDynamic(this, &UGA_CharacterAction::SimpleEndAbility);
 		WaitGameplayTagRemoved->ReadyForActivation();
 		break;
@@ -458,6 +564,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	default:
 		// 等待指定时间后结束
 		AbilityTaskDelay = UAT_WaitDelay::GetNewAbilityTask_WaitDelay(this, Period);
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] End condition: WaitTime Period=%.2f"),
+			*GetNameSafe(this),
+			Period);
 		AbilityTaskDelay->OnFinish.AddDynamic(this, &UGA_CharacterAction::SimpleEndAbility);
 		AbilityTaskDelay->ReadyForActivation();
 		break;
@@ -474,6 +583,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	case ECharacterActionEndType::WaitTagAdded:
 		// 当标签被添加时中断能力
 		WaitGameplayTagAdded_Interrupt = UAT_WaitGameplayTagAdded::GetNewAbilityTask_WaitGameplayTagAdded(this, InterruptGameplayTag);
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Interrupt condition: WaitTagAdded %s"),
+			*GetNameSafe(this),
+			*InterruptGameplayTag.ToString());
 		WaitGameplayTagAdded_Interrupt->Added.AddDynamic(this, &UGA_CharacterAction::SimpleEndAbility);
 		WaitGameplayTagAdded_Interrupt->ReadyForActivation();
 		break;
@@ -481,6 +593,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	case ECharacterActionEndType::WaitTagRemoved:
 		// 当标签被移除时中断能力
 		WaitGameplayTagRemoved_Interrupt = UAT_WaitGameplayTagRemoved::GetNewAbilityTask_WaitGameplayTagRemoved(this, InterruptGameplayTag);
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Interrupt condition: WaitTagRemoved %s"),
+			*GetNameSafe(this),
+			*InterruptGameplayTag.ToString());
 		WaitGameplayTagRemoved_Interrupt->Removed.AddDynamic(this, &UGA_CharacterAction::SimpleEndAbility);
 		WaitGameplayTagRemoved_Interrupt->ReadyForActivation();
 		break;
@@ -498,6 +613,9 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 		|| UKismetSystemLibrary::IsStandalone(GetWorld()))
 	{
 		// 生成Actor（特效、碰撞体等）
+		UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Server/Standalone execution. TargetVector_Attack=%s"),
+			*GetNameSafe(this),
+			*TargetVector_Attack.ToString());
 		UAT_SpawnActors* AbiltiyTaskSpawn = UAT_SpawnActors::GetNewAbilityTask_SpawnActors(this, SpawnActorData, TargetVector_Attack);
 		AbiltiyTaskSpawn->ReadyForActivation();
 
@@ -511,6 +629,10 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 	// ========================================================================================
 	UAT_PlayAnimMontages* AbilityTaskMontage = UAT_PlayAnimMontages::GetNewAbilityTask_PlayAnimMontages(this, ActionAnimMontageData);
 	// 绑定结束和取消事件，确保能力结束时停止动画
+	UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Play montage task started. Montage=%s Rate=%.2f"),
+		*GetNameSafe(this),
+		*GetNameSafe(ActionAnimMontageData.AnimMontage),
+		ActionAnimMontageData.AnimMontageRate);
 	OnEndAbility.AddDynamic(AbilityTaskMontage, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
 	OnCancelAbility.AddDynamic(AbilityTaskMontage, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
 	AbilityTaskMontage->ReadyForActivation();
@@ -535,6 +657,10 @@ bool UGA_CharacterAction::GetIsAbleToActivateCondition()
 	if (MyCharacter == nullptr
 		|| MyCharacterMovementComponent == nullptr)
 	{
+		UE_LOG(LogProjectUSA, Warning, TEXT("[GA_CharacterAction][%s] Activation condition failed. Character=%s MovementComponent=%s"),
+			*GetNameSafe(this),
+			*GetNameSafe(MyCharacter),
+			MyCharacterMovementComponent ? TEXT("Valid") : TEXT("Invalid"));
 		return false;
 	}
 	
@@ -558,6 +684,10 @@ void UGA_CharacterAction::AddArmorAttributeFromBase(float InAddArmor)
 			if (CheckIsAttributeFound == true)
 			{
 				OwnerASC->SetNumericAttributeBase(UUSAAttributeSet::GetCurrentArmorAttribute(), BaseArmor + InAddArmor);
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Armor applied. Base=%.2f Add=%.2f"),
+					*GetNameSafe(this),
+					BaseArmor,
+					InAddArmor);
 			}
 		}
 	}
@@ -580,6 +710,9 @@ void UGA_CharacterAction::ResetArmorAttributeToBase()
 			if (CheckIsAttributeFound == true)
 			{
 				OwnerASC->SetNumericAttributeBase(UUSAAttributeSet::GetCurrentArmorAttribute(), BaseArmor);
+				UE_LOG(LogProjectUSA, Log, TEXT("[GA_CharacterAction][%s] Armor reset to base %.2f"),
+					*GetNameSafe(this),
+					BaseArmor);
 			}
 		}
 	}
