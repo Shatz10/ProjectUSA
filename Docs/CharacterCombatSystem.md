@@ -1,9 +1,9 @@
-## Character Combat System (C++)
+## 角色战斗系统 (C++)
 
-This document summarizes how character combat works across inputs, character operation, animation, and combat logic, focusing on the primary C++ sources.
+本文档总结了角色战斗在输入、角色操作、动画和战斗逻辑方面的工作原理，重点关注主要的 C++ 源代码。
 
-### Input → Ability Activation
-- Player inputs are bound via Enhanced Input in `AUSACharacterBase::SetupPlayerInputComponent`, including ability inputs with an `InputID`. On press/release, it finds the corresponding `FGameplayAbilitySpec` and either tries to activate it or forwards input events.
+### 输入 → 能力激活
+- 玩家输入通过 `AUSACharacterBase::SetupPlayerInputComponent` 中的增强输入系统绑定，包括带有 `InputID` 的能力输入。按下/释放时，它会查找对应的 `FGameplayAbilitySpec`，并尝试激活它或转发输入事件。
 
 ```692:735:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -20,7 +20,7 @@ void AUSACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 }
 ```
 
-- Player movement/look inputs compute world directions from camera yaw for responsive control.
+- 玩家移动/视角输入从摄像机偏航角计算世界方向，以实现响应式控制。
 
 ```901:920:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::Move(const FInputActionValue& Value)
@@ -38,8 +38,8 @@ void AUSACharacterBase::Move(const FInputActionValue& Value)
 }
 ```
 
-### Character Operation (GAS setup, gameplay tags, targeting)
-- GAS is initialized in `PossessedBy` (server) and replicated to clients; abilities are granted in `PostSetupGAS`. Gameplay tag event handlers toggle locomotion flags and constraints.
+### 角色操作 (GAS 设置、游戏标签、目标锁定)
+- GAS 在 `PossessedBy`（服务器端）中初始化并复制到客户端；能力在 `PostSetupGAS` 中授予。游戏标签事件处理器切换移动标志和约束。
 
 ```737:755:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::PossessedBy(AController* NewController)
@@ -56,7 +56,7 @@ void AUSACharacterBase::PossessedBy(AController* NewController)
 }
 ```
 
-- Tag callbacks adjust movement, input, and state (e.g., ignore input, velocity zero, crouch/fall/dead).
+- 标签回调调整移动、输入和状态（例如，忽略输入、速度归零、蹲伏/坠落/死亡）。
 
 ```1228:1243:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::OnGameplayTagCallback_IgnoreMoveInput(const FGameplayTag CallbackTag, int32 NewCount)
@@ -67,7 +67,7 @@ void AUSACharacterBase::OnGameplayTagCallback_IgnoreMoveInput(const FGameplayTag
 }
 ```
 
-- Targeting: player maintains a target via overlap scoring of candidates in front of the camera; toggled by `LookTarget()`, with lock-on camera management.
+- 目标锁定：玩家通过摄像机前方候选者的重叠评分来维持目标；通过 `LookTarget()` 切换，带有锁定摄像机管理。
 
 ```367:472:Source/ProjectUSA/Character/USACharacterPlayer.cpp
 void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVector& InDirection, TObjectPtr<class AActor>& InOutTargetActorPointer)
@@ -78,8 +78,8 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 }
 ```
 
-### Ability Orchestration (Core)
-- `UUSAGameplayAbility` provides a common pattern: apply effects on activate/cancel/end, calculate target vectors, and handle client-server flow for target-vector-based abilities.
+### 能力编排 (核心)
+- `UUSAGameplayAbility` 提供通用模式：在激活/取消/结束时应用效果，计算目标向量，并处理基于目标向量的能力的客户端-服务器流程。
 
 ```106:165:Source/ProjectUSA/GAS/GA/USAGameplayAbility.cpp
 void UUSAGameplayAbility::ActivateAbility(...)
@@ -107,8 +107,8 @@ void UUSAGameplayAbility::ActivateAbilityUsingTargetVector(...)
 }
 ```
 
-### Character Action Ability (Battle Logic Core)
-The main melee action ability sequences movement, animation, VFX spawns, and attack traces, plus end/interrupt logic. It also temporarily adjusts armor and supports magnet/snap-to-target movement.
+### 角色动作能力 (战斗逻辑核心)
+主要的近战动作能力按顺序执行移动、动画、特效生成和攻击追踪，以及结束/中断逻辑。它还会临时调整护甲，并支持磁吸/吸附到目标的移动。
 
 ```34:89:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 void UGA_CharacterAction::ActivateAbility(...)
@@ -133,7 +133,7 @@ void UGA_CharacterAction::ActivateAbility(...)
 }
 ```
 
-Target vectors are computed with priority for target-facing and input, and magnet distance considers both capsule radii plus a configurable gap:
+目标向量的计算优先考虑面向目标和输入，磁吸距离考虑两个胶囊体半径加上可配置的间隙：
 
 ```113:196:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 void UGA_CharacterAction::CalculateTargetVector()
@@ -144,19 +144,19 @@ void UGA_CharacterAction::CalculateTargetVector()
 }
 ```
 
-Execution outline:
-- Rotate to `TargetVector_Move`; preserve spring arm transform to avoid camera pops.
-- Movement:
-  - Magnet move with `UAT_MoveToLocationByVelocity` to computed `EndLocation` and optional after-velocity.
-  - Or one of Move/Walk/Launch/Custom branches using the corresponding movement/launch/change-info tasks.
-- End/Interrupt:
-  - End via `UAT_WaitGameplayTagAdded/Removed` or `UAT_WaitDelay` (time-based).
-  - Interrupt via a parallel WaitTag task depending on `InterruptType` and `InterruptGameplayTag`.
-- Server-side:
-  - `UAT_SpawnActors` for FX or hitboxes.
-  - `UAT_TraceAttack` for timed traces using `AttackTraceData` and `TargetVector_Attack`.
-- Animation:
-  - `UAT_PlayAnimMontages` plays montage and supports dynamic section switching by gameplay tags.
+执行流程：
+- 旋转到 `TargetVector_Move`；保留弹簧臂变换以避免摄像机弹出。
+- 移动：
+  - 使用 `UAT_MoveToLocationByVelocity` 进行磁吸移动到计算出的 `EndLocation` 和可选的后续速度。
+  - 或使用相应的移动/发射/改变信息任务之一（Move/Walk/Launch/Custom 分支）。
+- 结束/中断：
+  - 通过 `UAT_WaitGameplayTagAdded/Removed` 或 `UAT_WaitDelay`（基于时间）结束。
+  - 根据 `InterruptType` 和 `InterruptGameplayTag` 通过并行 WaitTag 任务中断。
+- 服务器端：
+  - `UAT_SpawnActors` 用于特效或碰撞盒。
+  - `UAT_TraceAttack` 使用 `AttackTraceData` 和 `TargetVector_Attack` 进行定时追踪。
+- 动画：
+  - `UAT_PlayAnimMontages` 播放蒙太奇，并支持通过游戏标签动态切换片段。
 
 ```264:495:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 void UGA_CharacterAction::DoSomethingWithTargetVector()
@@ -165,20 +165,20 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 }
 ```
 
-Temporary armor is applied on start and restored on end/cancel:
+临时护甲在开始时应用，在结束/取消时恢复：
 
 ```522:564:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 void UGA_CharacterAction::AddArmorAttributeFromBase(float InAddArmor) { ... }
 void UGA_CharacterAction::ResetArmorAttributeToBase() { ... }
 ```
 
-#### Movement Types and Direction Selection
-- **Movement types** handled in action execution:
-  - **Magnet/Snap to Target** when within range and not using Custom move. Computes `EndLocation` from `TargetVector_Move * TargetDistance` and applies optional after velocity.
-  - **Move**: offset from current location with `MoveOffsetLocation` and `MoveAfterVelocity`.
-  - **Walk**: temporarily overrides movement settings via `UAT_ChangeCharacterMovementInfo` for the action duration.
-  - **Launch**: launches with configured vector and XY/Z overrides for a period.
-  - **Custom**: uses precomputed `TargetVector_Move` and `TargetDistance` with custom curves and after velocity.
+#### 移动类型和方向选择
+- **移动类型**在动作执行中处理：
+  - **磁吸/吸附到目标**：在范围内且不使用自定义移动时。从 `TargetVector_Move * TargetDistance` 计算 `EndLocation`，并应用可选的后续速度。
+  - **移动**：从当前位置偏移，使用 `MoveOffsetLocation` 和 `MoveAfterVelocity`。
+  - **行走**：通过 `UAT_ChangeCharacterMovementInfo` 在动作持续时间内临时覆盖移动设置。
+  - **发射**：使用配置的向量和 XY/Z 覆盖发射一段时间。
+  - **自定义**：使用预计算的 `TargetVector_Move` 和 `TargetDistance`，带有自定义曲线和后续速度。
 
 ```350:409:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 // Magnet move if TargetDistance > 0 and not Custom, else switch on MoveType:
@@ -188,7 +188,7 @@ void UGA_CharacterAction::ResetArmorAttributeToBase() { ... }
 // Custom → UAT_MoveToLocationByVelocity with custom data
 ```
 
-- **Direction selection**: `TargetVector_Move` is chosen from Input, Target, Custom, or Forward depending on `DirectionType` and runtime inputs/lock-on. The attack vector faces the current target when available.
+- **方向选择**：根据 `DirectionType` 和运行时输入/锁定，从输入、目标、自定义或前方向中选择 `TargetVector_Move`。攻击向量在可用时面向当前目标。
 
 ```211:261:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 switch (DirectionType) {
@@ -198,10 +198,10 @@ switch (DirectionType) {
 }
 ```
 
-#### End and Interrupt Types
-- **End conditions** (one of):
-  - Wait for a gameplay tag to be added, or removed.
-  - Wait a fixed time delay.
+#### 结束和中断类型
+- **结束条件**（其中之一）：
+  - 等待游戏标签被添加或移除。
+  - 等待固定时间延迟。
 
 ```417:445:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 switch (EndType) {
@@ -211,7 +211,7 @@ switch (EndType) {
 }
 ```
 
-- **Interrupt conditions** mirror the above and run in parallel to end logic:
+- **中断条件**与上述类似，并与结束逻辑并行运行：
 
 ```448:475:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 switch (InterruptType) {
@@ -221,8 +221,8 @@ switch (InterruptType) {
 }
 ```
 
-#### Camera Preservation During Rotation
-- The ability rotates the character to face `TargetVector_Move` but preserves the spring arm transform to prevent camera pops during the frame:
+#### 旋转期间的摄像机保持
+- 能力将角色旋转到面向 `TargetVector_Move`，但保留弹簧臂变换以防止帧期间的摄像机弹出：
 
 ```306:326:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 USpringArmComponent* SpringArm = MyCharacter->GetComponentByClass<USpringArmComponent>();
@@ -232,8 +232,8 @@ MyCharacter->UpdateComponentTransforms();
 if (SpringArm) { SpringArm->SetWorldTransform(Saved); }
 ```
 
-#### Server-only Execution (Spawns and Traces)
-- Spawning and attack traces are authoritative; on server (or standalone), the ability spawns configured actors and runs timed trace attacks using the computed `TargetVector_Attack`:
+#### 仅服务器端执行（生成和追踪）
+- 生成和攻击追踪是权威的；在服务器（或独立）上，能力生成配置的 Actor 并使用计算出的 `TargetVector_Attack` 运行定时追踪攻击：
 
 ```477:488:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 if (IsServerOrStandalone) {
@@ -242,8 +242,8 @@ if (IsServerOrStandalone) {
 }
 ```
 
-#### Montage Playback
-- Animation is orchestrated through `UAT_PlayAnimMontages`; it is subscribed to end/cancel to clean up properly:
+#### 蒙太奇播放
+- 动画通过 `UAT_PlayAnimMontages` 编排；它订阅结束/取消以正确清理：
 
 ```490:495:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 UAT_PlayAnimMontages* Task = UAT_PlayAnimMontages::GetNewAbilityTask_PlayAnimMontages(this, ActionAnimMontageData);
@@ -252,8 +252,8 @@ OnCancelAbility.AddDynamic(Task, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
 Task->ReadyForActivation();
 ```
 
-### Combat Logic (Traces, damage, knockback, VFX)
-- Attack traces are driven by timed segments. Each segment computes a start/end from offsets along forward/right/up (or towards a `TargetVector`), then sphere-traces to hit damageable actors, applying damage and spawning hit effects.
+### 战斗逻辑 (追踪、伤害、击退、特效)
+- 攻击追踪由定时片段驱动。每个片段从沿前/右/上（或朝向 `TargetVector`）的偏移计算开始/结束，然后进行球体追踪以命中可伤害的 Actor，应用伤害并生成命中效果。
 
 ```55:253:Source/ProjectUSA/GAS/AT/AT_TraceAttack.cpp
 void UAT_TraceAttack::AttackTraceAndSetNextTimer()
@@ -273,7 +273,7 @@ void UAT_TraceAttack::AttackTraceAndSetNextTimer()
 }
 ```
 
-- Damage application is authoritative on the server; team-kill protection and invincibility checks are performed; on success, clients are notified for camera shakes and VFX. Knockback is selected by context (death/parry/damage, air/ground) and activated via GAS.
+- 伤害应用在服务器端是权威的；执行团队击杀保护和无敌检查；成功时，通知客户端进行摄像机震动和特效。击退根据上下文（死亡/格挡/伤害、空中/地面）选择，并通过 GAS 激活。
 
 ```1835:1902:Source/ProjectUSA/Character/USACharacterBase.cpp
 float AUSACharacterBase::TakeDamage(...)
@@ -308,8 +308,8 @@ void AUSACharacterBase::ApplyDamageMomentum(...)
 }
 ```
 
-### Animation Handling
-- Abilities play montages via an ability task. Start section can switch dynamically based on gameplay tags; tag add/remove can jump to other sections. On end/cancel, configured behavior either stops or plays an end montage.
+### 动画处理
+- 能力通过能力任务播放蒙太奇。起始片段可以根据游戏标签动态切换；标签添加/移除可以跳转到其他片段。在结束/取消时，配置的行为要么停止，要么播放结束蒙太奇。
 
 ```29:121:Source/ProjectUSA/GAS/AT/AT_PlayAnimMontages.cpp
 void UAT_PlayAnimMontages::Activate()
@@ -338,13 +338,13 @@ void UAT_PlayAnimMontages::SimpleEndAbilityTask()
 }
 ```
 
-### Attack Combo System
+### 攻击连击系统
 
-The combo system is **gameplay tag-driven** rather than a rigid state machine. It uses input events, montage section switching, and gameplay tags to chain attacks together.
+连击系统是**游戏标签驱动**的，而不是僵化的状态机。它使用输入事件、蒙太奇片段切换和游戏标签来链接攻击。
 
-#### Input Handling for Combos
+#### 连击的输入处理
 
-When a player presses an input bound to an ability:
+当玩家按下绑定到能力的输入时：
 
 ```938:974:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::InputPressGameplayAbilityByInputID(int32 InputID)
@@ -366,20 +366,20 @@ void AUSACharacterBase::InputPressGameplayAbilityByInputID(int32 InputID)
 }
 ```
 
-**Key behavior**: If the ability is already active, `AbilitySpecInputPressed` is called instead of activating a new instance. This allows the running ability to react to input presses for combo continuation.
+**关键行为**：如果能力已经激活，则调用 `AbilitySpecInputPressed` 而不是激活新实例。这允许正在运行的能力响应输入按下以继续连击。
 
-#### Gameplay Tags for Combo Windows
+#### 连击窗口的游戏标签
 
-Combo windows are controlled by gameplay tags defined in `Config/DefaultGameplayTags.ini`:
+连击窗口由 `Config/DefaultGameplayTags.ini` 中定义的游戏标签控制：
 
-- `Character.Wait.Attack.ComboA00`, `ComboA01`, `ComboA02`, `ComboA03` (Combo A chain)
-- `Character.Wait.Attack.ComboB00`, `ComboB01`, `ComboB02`, `ComboB03` (Combo B chain)
+- `Character.Wait.Attack.ComboA00`、`ComboA01`、`ComboA02`、`ComboA03`（连击 A 链）
+- `Character.Wait.Attack.ComboB00`、`ComboB01`、`ComboB02`、`ComboB03`（连击 B 链）
 
-These tags are typically added/removed by **anim notifies** in the montage at specific frames to open and close combo windows.
+这些标签通常由蒙太奇中特定帧的**动画通知**添加/移除，以打开和关闭连击窗口。
 
-#### Montage Section Switching
+#### 蒙太奇片段切换
 
-`UAT_PlayAnimMontages` registers listeners for gameplay tag events and switches montage sections dynamically:
+`UAT_PlayAnimMontages` 注册游戏标签事件的监听器，并动态切换蒙太奇片段：
 
 ```70:91:Source/ProjectUSA/GAS/AT/AT_PlayAnimMontages.cpp
 UAbilitySystemComponent* ASC = Ability->GetAbilitySystemComponentFromActorInfo();
@@ -414,7 +414,7 @@ if (ASC)
 }
 ```
 
-When a combo tag is added during a combo window, the montage switches to the mapped section:
+当在连击窗口期间添加连击标签时，蒙太奇切换到映射的片段：
 
 ```189:217:Source/ProjectUSA/GAS/AT/AT_PlayAnimMontages.cpp
 void UAT_PlayAnimMontages::OnAnimSectionGameplayTagAdded(FGameplayTag InTag, int32 NewCount)
@@ -440,9 +440,9 @@ void UAT_PlayAnimMontages::OnAnimSectionGameplayTagAdded(FGameplayTag InTag, int
 }
 ```
 
-#### Combo Data Structure
+#### 连击数据结构
 
-The montage section mappings are stored in `FPlayAnimMontageData`:
+蒙太奇片段映射存储在 `FPlayAnimMontageData` 中：
 
 ```330:372:Source/ProjectUSA/Struct/USAStructs.h
 struct FPlayAnimMontageData
@@ -472,18 +472,18 @@ struct FPlayAnimMontageData
 };
 ```
 
-#### Combo Flow Example
+#### 连击流程示例
 
-1. **First attack**: Player presses attack input → `GA_CharacterAction` activates → plays montage starting at `StartAnimMontageSectionName` (e.g., "Attack1").
-2. **Combo window opens**: An anim notify in the montage adds `Character.Wait.Attack.ComboA00` tag.
-3. **Player presses attack again**: Since ability is active, `AbilitySpecInputPressed` is called (but `GA_CharacterAction` doesn't override `InputPressed`, so this is handled via tags).
-4. **Tag-driven section switch**: When the combo tag is present and the player input occurs (or another trigger adds the next tag), `OnAnimSectionGameplayTagAdded` fires → montage switches to the mapped section (e.g., "Attack2").
-5. **Combo continues**: Process repeats for subsequent combo steps (ComboA01 → Attack3, etc.).
-6. **Combo window closes**: If no input during window, an anim notify removes the combo tag → if mapped, switches to recovery section via `OnAnimSectionGameplayTagRemoved`.
+1. **第一次攻击**：玩家按下攻击输入 → `GA_CharacterAction` 激活 → 从 `StartAnimMontageSectionName`（例如 "Attack1"）开始播放蒙太奇。
+2. **连击窗口打开**：蒙太奇中的动画通知添加 `Character.Wait.Attack.ComboA00` 标签。
+3. **玩家再次按下攻击**：由于能力已激活，调用 `AbilitySpecInputPressed`（但 `GA_CharacterAction` 不覆盖 `InputPressed`，因此通过标签处理）。
+4. **标签驱动的片段切换**：当连击标签存在且玩家输入发生时（或另一个触发器添加下一个标签），`OnAnimSectionGameplayTagAdded` 触发 → 蒙太奇切换到映射的片段（例如 "Attack2"）。
+5. **连击继续**：为后续连击步骤重复该过程（ComboA01 → Attack3 等）。
+6. **连击窗口关闭**：如果在窗口期间没有输入，动画通知移除连击标签 → 如果已映射，通过 `OnAnimSectionGameplayTagRemoved` 切换到恢复片段。
 
-#### End/Cancel Windows
+#### 结束/取消窗口
 
-Combo abilities can use `UAT_WaitGameplayTagAdded/Removed` tasks to end or interrupt on specific tags, enabling cancel/dodge windows mid-combo:
+连击能力可以使用 `UAT_WaitGameplayTagAdded/Removed` 任务在特定标签上结束或中断，从而在连击中途启用取消/闪避窗口：
 
 ```417:445:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 switch (EndType)
@@ -497,9 +497,9 @@ switch (EndType)
 }
 ```
 
-#### Directional Influence
+#### 方向影响
 
-Each combo step recalculates direction on activation:
+每个连击步骤在激活时重新计算方向：
 
 ```113:261:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
 void UGA_CharacterAction::CalculateTargetVector()
@@ -512,22 +512,151 @@ void UGA_CharacterAction::CalculateTargetVector()
 }
 ```
 
-#### Adding a New Combo Step
+#### 添加新的连击步骤
 
-1. **Add montage section**: Create a new section in the attack montage (e.g., "Attack4").
-2. **Define gameplay tag**: Use existing combo tags or add new ones in `DefaultGameplayTags.ini`.
-3. **Map tag to section**: In the ability's `ActionAnimMontageData`, add entry to `AnimMontageSectionMapByGameplayTagAdded`: `ComboA03` → `"Attack4"`.
-4. **Add anim notifies**: In the previous attack section, add notifies to:
-   - Add the combo tag at the start of the combo window.
-   - Remove the combo tag at the end of the window (or map removal to a recovery section).
-5. **Optional**: Configure end/interrupt tags for cancel windows.
+1. **添加蒙太奇片段**：在攻击蒙太奇中创建新片段（例如 "Attack4"）。
+2. **定义游戏标签**：使用现有连击标签或在 `DefaultGameplayTags.ini` 中添加新标签。
+3. **将标签映射到片段**：在能力的 `ActionAnimMontageData` 中，向 `AnimMontageSectionMapByGameplayTagAdded` 添加条目：`ComboA03` → `"Attack4"`。
+4. **添加动画通知**：在前一个攻击片段中，添加通知以：
+   - 在连击窗口开始时添加连击标签。
+   - 在窗口结束时移除连击标签（或将移除映射到恢复片段）。
+5. **可选**：配置结束/中断标签以用于取消窗口。
 
-The system is flexible: combos can branch based on different tags, timing, or input combinations, all driven by gameplay tag events rather than hardcoded state transitions.
+该系统是灵活的：连击可以根据不同的标签、时机或输入组合进行分支，所有这些都由游戏标签事件驱动，而不是硬编码的状态转换。
 
-### Networking Model
-- Client computes target vector and sends it to server for authoritative replication (`ServerRPC_SetTargetVectorAndDoSomething`); the client also runs its local version for responsiveness.
-- Damage, knockback choice, and item/weapon replication are server-driven with multicast updates for visual effects and camera behavior.
-- Character animation RPCs in `AUSACharacterBase` ensure consistent montage state in networked games.
+### 能力取消和恢复中断
+
+能力取消系统允许新能力自动中断并取消当前激活的能力，从而实现恢复中断（后摇打断）机制。这对于响应式战斗至关重要，玩家可以通过输入新攻击来取消恢复动画。
+
+#### 输入处理层
+
+当玩家按下绑定到能力的输入时：
+
+```938:974:Source/ProjectUSA/Character/USACharacterBase.cpp
+void AUSACharacterBase::InputPressGameplayAbilityByInputID(int32 InputID)
+{
+	FGameplayAbilitySpec* GameplayAbilitySpec = ASC->FindAbilitySpecFromInputID(InputID);
+	
+	if (GameplayAbilitySpec == nullptr) { return; }
+	
+	if (GameplayAbilitySpec->IsActive())
+	{
+		// Ability is already running - forward input press event
+		ASC->AbilitySpecInputPressed(*GameplayAbilitySpec);
+	}
+	else
+	{
+		// Ability not active - try to activate it
+		ASC->TryActivateAbility(GameplayAbilitySpec->Handle);
+	}
+}
+```
+
+**关键行为**：如果能力已经激活，则调用 `AbilitySpecInputPressed`（用于连击继续）。否则，调用 `TryActivateAbility`，这会触发 GAS 自动取消系统。
+
+#### GAS 自动取消系统
+
+虚幻引擎的 GAS 系统在调用 `TryActivateAbility` 时自动处理能力取消。取消基于**游戏标签**：
+
+1. **CancelAbilitiesWithTag**：新能力的 `CancelAbilitiesWithTag` 属性中指定的标签
+2. **AbilityTags**：分配给当前激活能力的标签
+
+当新能力（例如 A01）尝试激活时：
+- GAS 检查 A01 的 `CancelAbilitiesWithTag` 是否包含与 A00 的 `AbilityTags` 匹配的任何标签
+- 如果匹配，GAS 在激活 A01 之前自动调用 A00 的 `CancelAbility`
+- 这是**自动**发生的 - 不需要额外的代码
+
+#### 取消流程
+
+当 A01 激活并取消 A00 时：
+
+1. **接收输入**：玩家按下 X 键 → 调用 `InputPressGameplayAbilityByInputID`
+2. **TryActivateAbility**：调用 `ASC->TryActivateAbility(A01->Handle)`
+3. **GAS 检查取消**：GAS 检测到 A01 的 `CancelAbilitiesWithTag` 与 A00 的 `AbilityTags` 匹配
+4. **取消 A00**：GAS 自动调用 `A00->CancelAbility(...)`
+5. **A00 清理**：
+   - 调用 `UGA_CharacterAction::CancelAbility`
+   - `ResetArmorAttributeToBase()` 将护甲恢复到基础值
+   - `OnCancelAbility` 委托触发（清理任务如停止蒙太奇）
+   - 应用 `CancelAbilityEffects`
+6. **激活 A01**：A00 取消后，A01 正常激活
+
+#### CancelAbility 实现
+
+取消清理在 `UGA_CharacterAction::CancelAbility` 中处理：
+
+```87:96:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
+void UGA_CharacterAction::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	// Restore armor attribute to base value
+	ResetArmorAttributeToBase();
+
+	// Execute blueprint-defined cancel behavior
+	K2_DoSomething_Cancel();
+}
+```
+
+基础 `UUSAGameplayAbility::CancelAbility` 处理：
+- 应用 `CancelAbilityEffects`（取消前）
+- 广播 `OnCancelAbility` 委托（清理任务订阅此委托）
+- 调用父级 `CancelAbility`（GAS 清理）
+- 应用 `PostCancelAbilityEffects`（取消后）
+
+```74:87:Source/ProjectUSA/GAS/GA/USAGameplayAbility.cpp
+void UUSAGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility)
+{
+	ApplyEffectsViaArray(CancelAbilityEffects, Handle, ActorInfo, ActivationInfo);
+
+	OnCancelAbility.Broadcast();
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+
+	ApplyEffectsViaArray(PostCancelAbilityEffects, Handle, ActorInfo, ActivationInfo);
+}
+```
+
+#### 取消时的任务清理
+
+当广播 `OnCancelAbility` 时，能力任务自动清理。例如，动画任务停止蒙太奇：
+
+```490:495:Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp
+UAT_PlayAnimMontages* Task = UAT_PlayAnimMontages::GetNewAbilityTask_PlayAnimMontages(this, ActionAnimMontageData);
+OnEndAbility.AddDynamic(Task, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
+OnCancelAbility.AddDynamic(Task, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
+Task->ReadyForActivation();
+```
+
+当能力被取消时，`OnCancelAbility` 触发 → 调用 `SimpleEndAbilityTask` → 停止蒙太奇。
+
+#### 配置（蓝图设置）
+
+要在能力之间启用恢复中断：
+
+1. **在 A00 上设置 AbilityTags**：在 A00 的能力蓝图中，分配唯一标签（例如 `Character.Action.Attack.A00`）
+2. **在 A01 上设置 CancelAbilitiesWithTag**：在 A01 的能力蓝图中，将 A00 的标签添加到 `CancelAbilitiesWithTag`
+3. **结果**：当 A01 激活时，它自动取消 A00
+
+**配置示例**：
+- A00: `AbilityTags` = `[Character.Action.Attack.A00]`
+- A01: `CancelAbilitiesWithTag` = `[Character.Action.Attack.A00]`
+- 当玩家在 A00 的恢复期间按下 X 时，A01 激活并取消 A00
+
+#### 总结
+
+恢复中断系统通过以下方式工作：
+
+1. **代码层**：`USACharacterBase::InputPressGameplayAbilityByInputID` 调用 `TryActivateAbility`
+2. **系统层**：虚幻引擎的 GAS 基于标签自动取消冲突的能力
+3. **配置层**：`AbilityTags` 和 `CancelAbilitiesWithTag` 的蓝图设置
+
+这种设计允许灵活的、标签驱动的取消，而无需硬编码能力关系。任何能力都可以通过匹配标签来取消任何其他能力，从而实现具有多个取消路径的复杂战斗系统。
+
+### 网络模型
+- 客户端计算目标向量并将其发送到服务器以进行权威复制（`ServerRPC_SetTargetVectorAndDoSomething`）；客户端还运行其本地版本以实现响应性。
+- 伤害、击退选择和物品/武器复制是服务器驱动的，具有用于视觉效果和摄像机行为的多播更新。
+- `AUSACharacterBase` 中的角色动画 RPC 确保网络游戏中蒙太奇状态的一致性。
 
 ```372:385:Source/ProjectUSA/Character/USACharacterBase.cpp
 void AUSACharacterBase::ServerRPC_PlayAnimMontage_Implementation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
@@ -536,20 +665,18 @@ void AUSACharacterBase::ServerRPC_PlayAnimMontage_Implementation(UAnimMontage* A
 }
 ```
 
-### Putting It Together
-1. Player presses an input bound to an ability InputID.
-2. `ASC->TryActivateAbility` runs a `UUSAGameplayAbility` (e.g., character action, dash, attack).
-3. Ability computes target/move vectors, rotates character, plays montage, and spawns attack/trace tasks.
-4. `UAT_TraceAttack` applies timed traces → damage/VFX. Server validates and triggers knockback abilities if needed.
-5. Gameplay tags drive interrupt/end windows and camera/locomotion adjustments.
+### 整体流程
+1. 玩家按下绑定到能力 InputID 的输入。
+2. `ASC->TryActivateAbility` 运行 `UUSAGameplayAbility`（例如，角色动作、冲刺、攻击）。
+3. 能力计算目标/移动向量，旋转角色，播放蒙太奇，并生成攻击/追踪任务。
+4. `UAT_TraceAttack` 应用定时追踪 → 伤害/特效。服务器验证并在需要时触发击退能力。
+5. 游戏标签驱动中断/结束窗口和摄像机/移动调整。
 
-### Key Files
-- `Source/ProjectUSA/Character/USACharacterBase.cpp`: Input bindings, GAS initialization, tag-driven character adjustments, damage and knockback, animation RPCs.
-- `Source/ProjectUSA/Character/USACharacterPlayer.cpp`: Player-specific input scaling, targeting system, camera management.
-- `Source/ProjectUSA/GAS/GA/USAGameplayAbility.cpp`: Ability lifecycle, target-vector client/server flow, effect application helpers.
-- `Source/ProjectUSA/GAS/AT/AT_TraceAttack.cpp`: Timed attack traces, hit processing, damage and VFX dispatch.
-- `Source/ProjectUSA/GAS/AT/AT_PlayAnimMontages.cpp`: Montage playback with gameplay tag–driven section switching and cleanup.
+### 关键文件
+- `Source/ProjectUSA/Character/USACharacterBase.cpp`：输入绑定、GAS 初始化、标签驱动的角色调整、伤害和击退、动画 RPC。
+- `Source/ProjectUSA/Character/USACharacterPlayer.cpp`：玩家特定的输入缩放、目标锁定系统、摄像机管理。
+- `Source/ProjectUSA/GAS/GA/USAGameplayAbility.cpp`：能力生命周期、目标向量客户端/服务器流程、效果应用辅助函数。
+- `Source/ProjectUSA/GAS/AT/AT_TraceAttack.cpp`：定时攻击追踪、命中处理、伤害和特效分发。
+- `Source/ProjectUSA/GAS/AT/AT_PlayAnimMontages.cpp`：蒙太奇播放，具有游戏标签驱动的片段切换和清理。
 
-For deeper ability choreography (movement, interrupts, attribute shields), also see `Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp`.
-
-
+有关更深层的能力编排（移动、中断、属性护盾），另请参阅 `Source/ProjectUSA/GAS/GA/GA_CharacterAction.cpp`。
