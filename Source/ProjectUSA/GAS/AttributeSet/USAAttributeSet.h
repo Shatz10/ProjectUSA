@@ -27,6 +27,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUSAAttributeSimpleDynamicDelegateFl
  * - CurrentArmor: 当前护甲值（可复制）
  * - BaseArmor: 基础护甲值（可复制）
  * - Damage: 伤害值（用于应用伤害）
+ * - CurrentPosture: 当前架势值（可复制）
+ * - MaxPosture: 最大架势值（可复制）
  * 
  * 核心功能:
  * - 属性变化回调:
@@ -39,6 +41,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FUSAAttributeSimpleDynamicDelegateFl
  *   - OnRevive: 复活时触发
  *   - OnCurrentHealthChanged: 当前生命值改变时触发
  *   - OnMaxHealthChanged: 最大生命值改变时触发
+ *   - OnCurrentPostureChanged: 当前架势值改变时触发
+ *   - OnMaxPostureChanged: 最大架势值改变时触发
+ *   - OnPostureBroken: 架势条被击破时触发
  * - 网络复制: 关键属性支持网络复制，确保多人游戏同步
  * 
  * 使用场景: 所有需要管理角色属性的系统（生命值、护甲、伤害等）
@@ -56,6 +61,9 @@ public:
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, CurrentArmor);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, BaseArmor);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, Damage);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, CurrentPosture);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, MaxPosture);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, PostureRecoverRate);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -70,6 +78,12 @@ public:
 	mutable FUSAAttributeSimpleDynamicDelegateFloat OnCurrentHealthChanged;
 	/** 最大生命值改变时触发 */
 	mutable FUSAAttributeSimpleDynamicDelegateFloat OnMaxHealthChanged;
+	/** 当前架势值改变时触发 */
+	mutable FUSAAttributeSimpleDynamicDelegateFloat OnCurrentPostureChanged;
+	/** 最大架势值改变时触发 */
+	mutable FUSAAttributeSimpleDynamicDelegateFloat OnMaxPostureChanged;
+	/** 架势条击破时触发 */
+	mutable FUSAAttributeSimpleDynamicDelegate OnPostureBroken;
 
 protected:
 	/** 当前生命值（可复制） */
@@ -92,6 +106,18 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
 
+	/** 当前架势值（可复制） */
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentPosture, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData CurrentPosture;
+
+	/** 最大架势值（可复制） */
+	UPROPERTY(ReplicatedUsing = OnRep_MaxPosture, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxPosture;
+
+	/** 架势恢复速度（可复制） */
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData PostureRecoverRate;
+
 	bool bOutOfHealth = false;
 
 
@@ -102,6 +128,12 @@ protected:
 
 	UFUNCTION()
 	void OnRep_MaxHealth();
+
+	UFUNCTION()
+	void OnRep_CurrentPosture();
+
+	UFUNCTION()
+	void OnRep_MaxPosture();
 
 	
 	// 체력 관련 어트리뷰트 접근 위함

@@ -15,7 +15,10 @@ UUSAAttributeSet::UUSAAttributeSet() :
 	MaxHealth(100.0f),
 	CurrentArmor(0.0f),
 	BaseArmor(0.0f),
-	Damage (0.0f)
+	Damage (0.0f),
+	CurrentPosture(0.0f),
+	MaxPosture(100.0f),
+	PostureRecoverRate(5.0f)
 {
 	InitCurrentHealth(GetMaxHealth());
 
@@ -68,6 +71,11 @@ void UUSAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, 
 	{
 		SetCurrentHealth(FMath::Clamp(NewValue, MinHealth, GetMaxHealth()));
 	}
+
+	if (Attribute == GetCurrentPostureAttribute())
+	{
+		SetCurrentPosture(FMath::Clamp(NewValue, 0.0f, GetMaxPosture()));
+	}
 }
 
 bool UUSAAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -105,6 +113,17 @@ void UUSAAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 			OnOutOfHealth.Broadcast();
 		}
 	}
+
+	if (Data.EvaluatedData.Attribute == GetCurrentPostureAttribute())
+	{
+		SetCurrentPosture(FMath::Clamp(GetCurrentPosture(), 0.0f, GetMaxPosture()));
+
+		// Check for Posture Break
+		if (GetCurrentPosture() >= GetMaxPosture() && GetMaxPosture() > 0.f)
+		{
+			OnPostureBroken.Broadcast();
+		}
+	}
 }
 
 void UUSAAttributeSet::OnRep_CurrentHealth()
@@ -119,6 +138,16 @@ void UUSAAttributeSet::OnRep_MaxHealth()
 	OnMaxHealthChanged.Broadcast(GetMaxHealth());
 }
 
+void UUSAAttributeSet::OnRep_CurrentPosture()
+{
+	OnCurrentPostureChanged.Broadcast(GetCurrentPosture());
+}
+
+void UUSAAttributeSet::OnRep_MaxPosture()
+{
+	OnMaxPostureChanged.Broadcast(GetMaxPosture());
+}
+
 
 void UUSAAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -129,4 +158,7 @@ void UUSAAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UUSAAttributeSet, CurrentArmor);
 	DOREPLIFETIME(UUSAAttributeSet, BaseArmor);
 	DOREPLIFETIME(UUSAAttributeSet, Damage);
+	DOREPLIFETIME(UUSAAttributeSet, CurrentPosture);
+	DOREPLIFETIME(UUSAAttributeSet, MaxPosture);
+	DOREPLIFETIME(UUSAAttributeSet, PostureRecoverRate);
 }

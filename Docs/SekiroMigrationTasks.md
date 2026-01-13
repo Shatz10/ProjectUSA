@@ -1,0 +1,39 @@
+# Migration Task List
+
+- [ ] Analyze Codebases
+    - [ ] Explore `Sekiro_Remake` Source Code <!-- id: 1 -->
+    - [ ] Explore `ProjectUSA` Source Code and GAS implementation <!-- id: 2 -->
+- [ ] Create Implementation Plan <!-- id: 3 -->
+- [x] Migrate Core Character
+    - [x] Port/Create Sekiro Character Class in ProjectUSA <!-- id: 4 -->
+    - [x] Set up AbilitySystemComponent and AttributeSet <!-- id: 5 -->
+- [x] Migrate Gameplay Logic to GAS
+    - [x] Implement Basic Movement/Animation <!-- id: 6 -->
+    - [x] Implement Attack Abilities <!-- id: 7 -->
+    - [x] Implement Health/Damage Logic (GameplayEffects) <!-- id: 8 -->
+- [x] Documentation
+    - [x] Create Migration Workflow Document in ProjectUSA <!-- id: 9 -->
+- [x] Advanced Combat Implementation
+    - [x] Implement Posture Recovery Logic (C++) <!-- id: 10 -->
+    - [x] Implement Health/Posture Damage Calculation (C++ Execution Calculation) <!-- id: 11 -->
+    - [x] Enhance Deflect Ability with event-based feedback (C++) <!-- id: 12 -->
+    - [x] Implement "Posture Break" Execution Ability (C++) <!-- id: 13 -->
+- [x] Movement System Migration
+    - [x] Implement Dash Ability (C++) <!-- id: 14 -->
+    - [x] Implement Sprint/Walk Toggle (C++) <!-- id: 15 -->
+    - [x] Implement Movement State Transitions (C++) <!-- id: 16 -->
+- [ ] Jump System Migration
+    - [ ] Implement Jump Ready/Start/Loop/End States (C++) <!-- id: 17 -->
+    - [ ] Implement Directional Jump Logic (C++) <!-- id: 18 -->
+    - [ ] Implement Jump-to-Jump Transitions (C++) <!-- id: 19 -->
+- [ ] Hit Reaction System
+    - [ ] Implement BeHit States (Ground/Air) (C++) <!-- id: 20 -->
+    - [ ] Implement Hit Fly/Knockdown States (C++) <!-- id: 21 -->
+    - [ ] Implement Get Up States (C++) <!-- id: 22 -->
+- [x] Input System Enhancement
+    - [x] Implement Input Buffering Component (C++) <!-- id: 23 -->
+    - [ ] Integrate with GAS Input System (C++) <!-- id: 24 -->
+- [ ] Animation Integration
+    - [ ] Port Animation Notifies (C++) <!-- id: 25 -->
+    - [ ] Implement Root Motion Integration (C++) <!-- id: 26 -->
+
