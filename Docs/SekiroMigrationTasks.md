@@ -26,10 +26,10 @@
     - [ ] Implement Jump Ready/Start/Loop/End States (C++) <!-- id: 17 -->
     - [ ] Implement Directional Jump Logic (C++) <!-- id: 18 -->
     - [ ] Implement Jump-to-Jump Transitions (C++) <!-- id: 19 -->
-- [ ] Hit Reaction System
-    - [ ] Implement BeHit States (Ground/Air) (C++) <!-- id: 20 -->
-    - [ ] Implement Hit Fly/Knockdown States (C++) <!-- id: 21 -->
-    - [ ] Implement Get Up States (C++) <!-- id: 22 -->
+- [x] Hit Reaction System
+    - [x] Implement BeHit States (Ground/Air) (C++) <!-- id: 20 -->
+    - [x] Implement Hit Fly/Knockdown States (C++) <!-- id: 21 -->
+    - [x] Implement Get Up States (C++) <!-- id: 22 -->
 - [x] Input System Enhancement
     - [x] Implement Input Buffering Component (C++) <!-- id: 23 -->
     - [ ] Integrate with GAS Input System (C++) <!-- id: 24 -->

@@ -1,5 +1,23 @@
 # Migration Workflow: Sekiro Remake logic to ProjectUSA (GAS)
 
+## Migration Status
+
+**Overall Progress**: 75% Complete
+
+**Completed Systems**:
+- ✅ Core Character & Attributes (Posture System)
+- ✅ Advanced Combat (Deflect, Attack, Execution, Damage Calculation)
+- ✅ Movement System (Dash, Sprint)
+- ✅ Input Buffering
+- ✅ Hit Reaction System (Ground/Air, Knockdown, Get-Up)
+- ✅ Animation Notifies (Attack Windows, Parry Timing)
+
+**Remaining Work**:
+- ⏳ Jump System (Directional jumps with state progression)
+- ⏳ GAS Input Integration (Connect input buffer to ability activation)
+
+---
+
 This document outlines the workflow for migrating gameplay logic from the `Sekiro_Remake` repository to the `ProjectUSA` GAS framework.
 
 ## 1. Environment Setup
