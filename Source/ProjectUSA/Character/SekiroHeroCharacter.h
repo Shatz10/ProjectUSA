@@ -30,7 +30,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	// Override to grant Sekiro-specific abilities
+	virtual void SetupGAS() override;
+
 	// Handle Posture Break
 	UFUNCTION()
 	virtual void OnPostureBroken();
+
+	// Input buffer integration - override from base class
+	virtual void InputPressGameplayAbilityByInputID(int32 InputID);
+	
+	// Helper to try activating ability from buffered input
+	void TryActivateAbilityWithBuffer(int32 InputID, FName InputName);
 };

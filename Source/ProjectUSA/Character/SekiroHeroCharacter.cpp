@@ -6,6 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Component/SekiroInputBufferComponent.h"
+#include "TimerManager.h"
+#include "GameplayTagsManager.h"
 
 ASekiroHeroCharacter::ASekiroHeroCharacter()
 {
@@ -57,5 +59,47 @@ float ASekiroHeroCharacter::GetMaxPosture() const
 void ASekiroHeroCharacter::OnPostureBroken()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SekiroHeroCharacter::OnPostureBroken - Posture Broken!"));
-	// Apply Stun GameplayEffect or Tag here
+	
+	// Apply State.PostureBroken tag
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	{
+		FGameplayTag PostureBrokenTag = FGameplayTag::RequestGameplayTag(FName("State.PostureBroken"));
+		if (PostureBrokenTag.IsValid())
+		{
+			ASC->AddLooseGameplayTag(PostureBrokenTag);
+			
+			// Remove tag after a duration (e.g., 3 seconds)
+			FTimerHandle PostureBrokenTimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(PostureBrokenTimerHandle, [this, ASC, PostureBrokenTag]()
+			{
+				if (ASC)
+				{
+					ASC->RemoveLooseGameplayTag(PostureBrokenTag);
+				}
+			}, 3.0f, false);
+		}
+	}
+}
+
+void ASekiroHeroCharacter::InputPressGameplayAbilityByInputID(int32 InputID)
+{
+	// Record input in buffer for potential consumption later
+	if (InputBufferComponent)
+	{
+		FName InputName = FName(*FString::Printf(TEXT("Input_%d"), InputID));
+		InputBufferComponent->RecordInput(InputName);
+	}
+
+	// Try to activate ability immediately via base class
+	Super::InputPressGameplayAbilityByInputID(InputID);
+}
+
+void ASekiroHeroCharacter::TryActivateAbilityWithBuffer(int32 InputID, FName InputName)
+{
+	// Check if input is buffered and try to consume it
+	if (InputBufferComponent && InputBufferComponent->TryConsumeInput(InputName))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Activating ability from buffered input: %s"), *InputName.ToString());
+		Super::InputPressGameplayAbilityByInputID(InputID);
+	}
 }

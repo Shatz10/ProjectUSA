@@ -32,7 +32,7 @@
     - [x] Implement Get Up States (C++) <!-- id: 22 -->
 - [x] Input System Enhancement
     - [x] Implement Input Buffering Component (C++) <!-- id: 23 -->
-    - [ ] Integrate with GAS Input System (C++) <!-- id: 24 -->
+    - [x] Integrate with GAS Input System (C++) <!-- id: 24 -->
 - [ ] Animation Integration
     - [ ] Port Animation Notifies (C++) <!-- id: 25 -->
     - [ ] Implement Root Motion Integration (C++) <!-- id: 26 -->
