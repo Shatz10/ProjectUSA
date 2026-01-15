@@ -18,7 +18,9 @@ UUSAAttributeSet::UUSAAttributeSet() :
 	Damage (0.0f),
 	CurrentPosture(0.0f),
 	MaxPosture(100.0f),
-	PostureRecoverRate(5.0f)
+	PostureRecoverRate(5.0f),
+	CurrentSpiritEmblems(15.0f),
+	MaxSpiritEmblems(15.0f)
 {
 	InitCurrentHealth(GetMaxHealth());
 
@@ -75,6 +77,11 @@ void UUSAAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, 
 	if (Attribute == GetCurrentPostureAttribute())
 	{
 		SetCurrentPosture(FMath::Clamp(NewValue, 0.0f, GetMaxPosture()));
+	}
+
+	if (Attribute == GetCurrentSpiritEmblemsAttribute())
+	{
+		SetCurrentSpiritEmblems(FMath::Clamp(NewValue, 0.0f, GetMaxSpiritEmblems()));
 	}
 }
 
@@ -148,6 +155,16 @@ void UUSAAttributeSet::OnRep_MaxPosture()
 	OnMaxPostureChanged.Broadcast(GetMaxPosture());
 }
 
+void UUSAAttributeSet::OnRep_CurrentSpiritEmblems()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUSAAttributeSet, CurrentSpiritEmblems, 0.f);
+}
+
+void UUSAAttributeSet::OnRep_MaxSpiritEmblems()
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UUSAAttributeSet, MaxSpiritEmblems, 0.f);
+}
+
 
 void UUSAAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -161,4 +178,6 @@ void UUSAAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UUSAAttributeSet, CurrentPosture);
 	DOREPLIFETIME(UUSAAttributeSet, MaxPosture);
 	DOREPLIFETIME(UUSAAttributeSet, PostureRecoverRate);
+	DOREPLIFETIME(UUSAAttributeSet, CurrentSpiritEmblems);
+	DOREPLIFETIME(UUSAAttributeSet, MaxSpiritEmblems);
 }

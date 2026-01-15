@@ -62,24 +62,45 @@ void USekiroDamageExecution::Execute_Implementation(const FGameplayEffectCustomE
 	}
 
 	// Check if target is blocking
-	// NOTE: You need to define these tags in USAGameplayTags.h
-	// For now using placeholder logic
 	bool bIsBlocking = TargetASC && TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Blocking")));
 	bool bIsPerfectParry = TargetASC && TargetASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.PerfectParry")));
 
+	// Check if source is performing a perilous attack
+	bool bIsThrust = SourceASC && SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Attack.Perilous.Thrust")));
+	bool bIsSweep = SourceASC && SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Attack.Perilous.Sweep")));
+	bool bIsGrab = SourceASC && SourceASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("Attack.Perilous.Grab")));
+	bool bIsPerilous = bIsThrust || bIsSweep || bIsGrab;
+
 	if (bIsPerfectParry)
 	{
-		// Perfect Parry: Nullify damage, apply posture damage to attacker
-		// NOTE: In Blueprint, you would apply a separate GE to the Source here
-		// For now, just nullify damage
-		UE_LOG(LogTemp, Log, TEXT("Perfect Parry! Damage nullified."));
+		// Grabs and Sweeps cannot be perfect parried (usually)
+		if (bIsGrab || bIsSweep)
+		{
+			// Apply damage even if parrying
+			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, Damage));
+			UE_LOG(LogTemp, Log, TEXT("Perilous Sweep/Grab hit through parry!"));
+		}
+		else
+		{
+			// Perfect Parry: Nullify damage (works for normal attacks and thrusts)
+			UE_LOG(LogTemp, Log, TEXT("Perfect Parry! Damage nullified."));
+		}
 		return;
 	}
 	else if (bIsBlocking)
 	{
-		// Normal Block: Redirect damage to Posture
-		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().CurrentPostureProperty, EGameplayModOp::Additive, Damage));
-		UE_LOG(LogTemp, Log, TEXT("Blocked! %f damage to Posture."), Damage);
+		// Normal blocks don't work against perilous attacks
+		if (bIsPerilous)
+		{
+			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().DamageProperty, EGameplayModOp::Additive, Damage));
+			UE_LOG(LogTemp, Log, TEXT("Perilous attack broke through block!"));
+		}
+		else
+		{
+			// Normal Block: Redirect damage to Posture
+			OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(DamageStatics().CurrentPostureProperty, EGameplayModOp::Additive, Damage));
+			UE_LOG(LogTemp, Log, TEXT("Blocked! %f damage to Posture."), Damage);
+		}
 	}
 	else
 	{

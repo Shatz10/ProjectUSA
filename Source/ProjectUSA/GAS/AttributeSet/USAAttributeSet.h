@@ -64,6 +64,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, CurrentPosture);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, MaxPosture);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, PostureRecoverRate);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, CurrentSpiritEmblems);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, MaxSpiritEmblems);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -114,9 +116,13 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_MaxPosture, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData MaxPosture;
 
-	/** 架势恢复速度（可复制） */
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
-	FGameplayAttributeData PostureRecoverRate;
+	/** 当前纸人数量 (Spirit Emblems) */
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentSpiritEmblems, BlueprintReadOnly, Category = "Attribute")
+	FGameplayAttributeData CurrentSpiritEmblems;
+
+	/** 最大纸人数量 */
+	UPROPERTY(ReplicatedUsing = OnRep_MaxSpiritEmblems, BlueprintReadOnly, Category = "Attribute")
+	FGameplayAttributeData MaxSpiritEmblems;
 
 protected:
 	bool bOutOfHealth = false;
@@ -134,6 +140,11 @@ protected:
 	UFUNCTION()
 	void OnRep_MaxPosture();
 
+	UFUNCTION()
+	void OnRep_CurrentSpiritEmblems();
+
+	UFUNCTION()
+	void OnRep_MaxSpiritEmblems();
 	
 	// 체력 관련 어트리뷰트 접근 위함
 	friend class AUSACharacterBase;

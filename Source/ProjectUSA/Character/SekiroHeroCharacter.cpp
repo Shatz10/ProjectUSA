@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Component/SekiroInputBufferComponent.h"
+#include "Component/SekiroTargetLockComponent.h"
 #include "TimerManager.h"
 #include "GameplayTagsManager.h"
 
@@ -16,6 +17,9 @@ ASekiroHeroCharacter::ASekiroHeroCharacter()
 
 	// Create input buffer component
 	InputBufferComponent = CreateDefaultSubobject<USekiroInputBufferComponent>(TEXT("InputBufferComponent"));
+
+	// Create Target Lock-on component
+	TargetLockComponent = CreateDefaultSubobject<USekiroTargetLockComponent>(TEXT("TargetLockComponent"));
 }
 
 void ASekiroHeroCharacter::BeginPlay()
@@ -52,6 +56,24 @@ float ASekiroHeroCharacter::GetMaxPosture() const
 	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
 	{
 		return USAAttributeSet->GetMaxPosture();
+	}
+	return 0.0f;
+}
+
+float ASekiroHeroCharacter::GetCurrentSpiritEmblems() const
+{
+	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
+	{
+		return USAAttributeSet->GetCurrentSpiritEmblems();
+	}
+	return 0.0f;
+}
+
+float ASekiroHeroCharacter::GetMaxSpiritEmblems() const
+{
+	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
+	{
+		return USAAttributeSet->GetMaxSpiritEmblems();
 	}
 	return 0.0f;
 }

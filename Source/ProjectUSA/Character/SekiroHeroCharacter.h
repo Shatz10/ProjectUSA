@@ -27,6 +27,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sekiro")
 	class USekiroInputBufferComponent* InputBufferComponent;
 
+	/** Target Lock-on component (usually added in BP) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sekiro")
+	class USekiroTargetLockComponent* TargetLockComponent;
+
+	// Helper to get Spirit Emblems
+	float GetCurrentSpiritEmblems() const;
+	float GetMaxSpiritEmblems() const;
+
 protected:
 	virtual void BeginPlay() override;
 
