@@ -57,13 +57,13 @@ void AUSAPlayerController::BeginPlayingState()
 
         if (USACharacterOwner && USAHUD)
         {
-            USAHUD->InitPlayerHUD(USACharacterOwner);
+            // USAHUD->InitPlayerHUD(USACharacterOwner);
         }
 
         // 첫 인트로가 없는 경우
         if (IsValid(UGameplayStatics::GetActorOfClass(GetWorld(), AUSALevelSequenceBegin::StaticClass())) == false)
         {
-            USAHUD->PlayUserWidgetAnimation_Panel(true, false);
+            //USAHUD->PlayUserWidgetAnimation_Panel(true, false);
         }
     }
 }
