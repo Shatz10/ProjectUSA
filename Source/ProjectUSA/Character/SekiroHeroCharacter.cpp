@@ -22,7 +22,7 @@ void ASekiroHeroCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UUSAAttributeSet* USAAttributeSet = Cast<UUSAAttributeSet>(GetAttributeSet()))
+	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
 	{
 		USAAttributeSet->OnPostureBroken.AddDynamic(this, &ASekiroHeroCharacter::OnPostureBroken);
 	}
@@ -40,7 +40,7 @@ void ASekiroHeroCharacter::SetupGAS()
 
 float ASekiroHeroCharacter::GetCurrentPosture() const
 {
-	if (const UUSAAttributeSet* USAAttributeSet = Cast<UUSAAttributeSet>(GetAttributeSet()))
+	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
 	{
 		return USAAttributeSet->GetCurrentPosture();
 	}
@@ -49,7 +49,7 @@ float ASekiroHeroCharacter::GetCurrentPosture() const
 
 float ASekiroHeroCharacter::GetMaxPosture() const
 {
-	if (const UUSAAttributeSet* USAAttributeSet = Cast<UUSAAttributeSet>(GetAttributeSet()))
+	if (const UUSAAttributeSet* USAAttributeSet  = Cast<UUSAAttributeSet>(ASC->GetSet<UUSAAttributeSet>()))
 	{
 		return USAAttributeSet->GetMaxPosture();
 	}
@@ -61,7 +61,7 @@ void ASekiroHeroCharacter::OnPostureBroken()
 	UE_LOG(LogTemp, Warning, TEXT("SekiroHeroCharacter::OnPostureBroken - Posture Broken!"));
 	
 	// Apply State.PostureBroken tag
-	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+	if (UAbilitySystemComponent* AbilitySystem = GetAbilitySystemComponent())
 	{
 		FGameplayTag PostureBrokenTag = FGameplayTag::RequestGameplayTag(FName("State.PostureBroken"));
 		if (PostureBrokenTag.IsValid())
@@ -70,7 +70,7 @@ void ASekiroHeroCharacter::OnPostureBroken()
 			
 			// Remove tag after a duration (e.g., 3 seconds)
 			FTimerHandle PostureBrokenTimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(PostureBrokenTimerHandle, [this, ASC, PostureBrokenTag]()
+			GetWorld()->GetTimerManager().SetTimer(PostureBrokenTimerHandle, [this, AbilitySystem, PostureBrokenTag]()
 			{
 				if (ASC)
 				{

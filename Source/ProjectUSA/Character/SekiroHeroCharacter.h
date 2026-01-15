@@ -30,9 +30,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	// Override to grant Sekiro-specific abilities
-	virtual void SetupGAS() override;
-
 	// Handle Posture Break
 	UFUNCTION()
 	virtual void OnPostureBroken();
