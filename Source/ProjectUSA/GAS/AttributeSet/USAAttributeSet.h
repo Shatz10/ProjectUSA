@@ -85,43 +85,42 @@ public:
 	/** 架势条击破时触发 */
 	mutable FUSAAttributeSimpleDynamicDelegate OnPostureBroken;
 
-protected:
+public:
 	/** 当前生命值（可复制） */
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHealth, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData CurrentHealth;
 
 	/** 最大生命值（可复制） */
-	UPROPERTY(ReplicatedUsing = OnRep_MaxHealth, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = OnRep_MaxHealth, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData MaxHealth;
 
 	/** 当前护甲值（可复制） */
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData CurrentArmor;
 
 	/** 基础护甲值（可复制） */
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData BaseArmor;
 
 	/** 伤害值（用于应用伤害） */
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData Damage;
 
 	/** 当前架势值（可复制） */
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentPosture, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentPosture, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData CurrentPosture;
 
 	/** 最大架势值（可复制） */
-	UPROPERTY(ReplicatedUsing = OnRep_MaxPosture, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = OnRep_MaxPosture, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData MaxPosture;
 
 	/** 架势恢复速度（可复制） */
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute", Meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData PostureRecoverRate;
 
+protected:
 	bool bOutOfHealth = false;
 
-
-protected:
 
 	UFUNCTION()
 	void OnRep_CurrentHealth();
