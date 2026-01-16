@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Component/SekiroInputBufferComponent.h"
 #include "Component/SekiroTargetLockComponent.h"
+#include "GAS/GA/Sekiro/GA_SekiroProstheticTool.h"
 #include "TimerManager.h"
 #include "GameplayTagsManager.h"
 
@@ -124,4 +125,69 @@ void ASekiroHeroCharacter::TryActivateAbilityWithBuffer(int32 InputID, FName Inp
 		UE_LOG(LogTemp, Log, TEXT("Activating ability from buffered input: %s"), *InputName.ToString());
 		Super::InputPressGameplayAbilityByInputID(InputID);
 	}
+}
+
+void ASekiroHeroCharacter::CycleProstheticTool()
+{
+	if (EquippedTools.Num() == 0) return;
+
+	CurrentToolIndex = (CurrentToolIndex + 1) % EquippedTools.Num();
+	
+	UE_LOG(LogTemp, Log, TEXT("Prosthetic Tool Switched to index: %d"), CurrentToolIndex);
+	
+	// Send Event to UI
+	if (ASC)
+	{
+		FGameplayEventData Payload;
+		Payload.Instigator = this;
+		Payload.EventTag = FGameplayTag::RequestGameplayTag(FName("GameplayEvent.UI.ToolSwitched"));
+		ASC->HandleGameplayEvent(Payload.EventTag, &Payload);
+	}
+}
+
+TSubclassOf<UGA_SekiroProstheticTool> ASekiroHeroCharacter::GetCurrentProstheticTool() const
+{
+	if (EquippedTools.IsValidIndex(CurrentToolIndex))
+	{
+		return EquippedTools[CurrentToolIndex];
+	}
+	return nullptr;
+}
+
+float ASekiroHeroCharacter::GetVisibilityMultiplier() const
+{
+	if (!ASC) return 1.0f;
+
+	// In Sekiro, crouching significantly reduces visibility distance.
+	if (ASC->HasMatchingGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.Crouching"))))
+	{
+		// 50% reduction in visibility distance when crouching
+		return 0.5f;
+	}
+
+	// 100% (Normal) visibility
+	return 1.0f;
+}
+
+bool ASekiroHeroCharacter::CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor, const bool* bWasVisible, int32* UserData) const
+{
+	// Default visibility logic: aim for the chest/head
+	OutSeenLocation = GetActorLocation() + FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	OutSightStrength = GetVisibilityMultiplier();
+
+	// If visibility is 0, we can't be seen
+	if (OutSightStrength <= 0.01f)
+	{
+		return false;
+	}
+
+	// Perform standard line trace to check for LOS
+	FHitResult HitResult;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(CanBeSeenFrom), true, IgnoreActor);
+	Params.AddIgnoredActor(this);
+
+	const bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, ObserverLocation, OutSeenLocation, ECC_Visibility, Params);
+	NumberOfLoSChecksPerformed++;
+
+	return !bHit || (HitResult.GetActor() == this);
 }

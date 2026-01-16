@@ -37,7 +37,15 @@ void UGA_SekiroExecution::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		return;
 	}
 
-	// Play execution montage
+	// 1. Clear Resurrection Black Mark (State.NoResurrect)
+	// In Sekiro, performing a deathblow clears the black mark allowing for another resurrection.
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		ASC->RemoveLooseGameplayTag(FGameplayTag::RequestGameplayTag(FName("State.NoResurrect")));
+		UE_LOG(LogTemp, Log, TEXT("Execution performed: Resurrection Black Mark cleared."));
+	}
+
+	// 2. Play execution montage
 	if (ExecutionMontage)
 	{
 		UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, ExecutionMontage);
@@ -49,8 +57,7 @@ void UGA_SekiroExecution::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 		PlayMontageTask->ReadyForActivation();
 	}
 
-	// Apply execution damage
-	// NOTE: In production, this should be done via AnimNotify at the right moment
+	// 3. Apply execution damage
 	UGameplayStatics::ApplyDamage(Target, ExecutionDamage, GetOwningActorFromActorInfo()->GetInstigatorController(), GetOwningActorFromActorInfo(), UDamageType::StaticClass());
 }
 

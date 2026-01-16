@@ -66,6 +66,8 @@ public:
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, PostureRecoverRate);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, CurrentSpiritEmblems);
 	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, MaxSpiritEmblems);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, ResurrectionPower);
+	ATTRIBUTE_ACCESSORS(UUSAAttributeSet, MaxResurrectionPower);
 
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
@@ -128,6 +130,14 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_MaxSpiritEmblems, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData MaxSpiritEmblems;
 
+	/** 当前起死回生之力 (Resurrection Power) */
+	UPROPERTY(ReplicatedUsing = OnRep_ResurrectionPower, BlueprintReadOnly, Category = "Attribute")
+	FGameplayAttributeData ResurrectionPower;
+
+	/** 最大起死回生之力 (通常为3.0) */
+	UPROPERTY(ReplicatedUsing = OnRep_MaxResurrectionPower, BlueprintReadOnly, Category = "Attribute")
+	FGameplayAttributeData MaxResurrectionPower;
+
 protected:
 	bool bOutOfHealth = false;
 
@@ -149,6 +159,12 @@ protected:
 
 	UFUNCTION()
 	void OnRep_MaxSpiritEmblems();
+
+	UFUNCTION()
+	void OnRep_ResurrectionPower();
+
+	UFUNCTION()
+	void OnRep_MaxResurrectionPower();
 	
 	//To access attributes related to physical strength
 	friend class AUSACharacterBase;

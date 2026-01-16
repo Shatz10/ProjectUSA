@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Character/USACharacterPlayer.h"
+#include "Perception/AISightTargetInterface.h"
 #include "SekiroHeroCharacter.generated.h"
 
 /**
  * Sekiro-style character with Posture and Deflect mechanics.
  */
 UCLASS()
-class PROJECTUSA_API ASekiroHeroCharacter : public AUSACharacterPlayer
+class PROJECTUSA_API ASekiroHeroCharacter : public AUSACharacterPlayer, public IAISightTargetInterface
 {
 	GENERATED_BODY()
 	
@@ -35,6 +36,26 @@ public:
 	float GetCurrentSpiritEmblems() const;
 	float GetMaxSpiritEmblems() const;
 
+	// Cycle through equipped prosthetic tools
+	UFUNCTION(BlueprintCallable, Category = "Sekiro")
+	void CycleProstheticTool();
+
+	// Get currently selected prosthetic ability class
+	UFUNCTION(BlueprintPure, Category = "Sekiro")
+	TSubclassOf<class UGA_SekiroProstheticTool> GetCurrentProstheticTool() const;
+
+	/** List of equipped prosthetic abilities */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sekiro")
+	TArray<TSubclassOf<class UGA_SekiroProstheticTool>> EquippedTools;
+
+	/** Index of the currently selected tool */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Sekiro")
+	int32 CurrentToolIndex = 0;
+
+	/** Visibility modifier based on current state (Crouching, etc.) */
+	UFUNCTION(BlueprintPure, Category = "Sekiro")
+	float GetVisibilityMultiplier() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,4 +68,7 @@ protected:
 	
 	// Helper to try activating ability from buffered input
 	void TryActivateAbilityWithBuffer(int32 InputID, FName InputName);
+
+	// IAISightTargetInterface implementation
+	virtual bool CanBeSeenFrom(const FVector& ObserverLocation, FVector& OutSeenLocation, int32& NumberOfLoSChecksPerformed, float& OutSightStrength, const AActor* IgnoreActor = nullptr, const bool* bWasVisible = nullptr, int32* UserData = nullptr) const override;
 };
