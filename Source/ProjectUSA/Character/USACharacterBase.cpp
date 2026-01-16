@@ -597,7 +597,7 @@ void AUSACharacterBase::SetPlayerDefaults()
 
 void AUSACharacterBase::PlaySound_Footstep()
 {
-	floatRadius = 10.0f; // set trace radius
+	float Radius = 10.0f; // set trace radius
 	TArray<AActor*> IgnoreActors; // Actors to ignore in the trace
 	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None; // Set debug trace type
 
