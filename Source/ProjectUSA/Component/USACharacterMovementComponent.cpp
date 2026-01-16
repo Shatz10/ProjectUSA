@@ -22,23 +22,23 @@ float UUSACharacterMovementComponent::GetGravityZ() const
 {
 	float FinalGravityZ = Super::GetGravityZ();
 
-	// 점프를 비롯하여 점프 중이라면 강한 중력을 가함
+// Apply strong gravity if you are jumping, including jumping.
 	if (Velocity.Z > 0)
 	{
 		FinalGravityZ *= UppingGravityScale;
 	}
-	// 하강 중이라면
+// If descending
 	else
 	{
 		UAbilitySystemComponent* OwnerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner());
 
-		// 대미지를 받는 상태라면, 수월한 공중콤보를 위해 더욱 천천히 떨어지도록 함
+// If you are taking damage, fall more slowly for an easy aerial combo.
 		if (IsValid(OwnerASC) == true
 			&& OwnerASC->HasMatchingGameplayTag(USA_CHARACTER_ACTION_DAMAGE))
 		{
 			FinalGravityZ *= DowningGravityScale_Damage;
 		}
-		// 점프에 비해 천천히 떨어지도록 함
+// Make it fall slowly compared to jumping
 		else
 		{
 			FinalGravityZ *= DowningGravityScale;

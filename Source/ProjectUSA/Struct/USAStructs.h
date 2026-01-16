@@ -13,7 +13,7 @@
 
 // USA Attack
 
-// 공격 정보
+// attack information
 USTRUCT(BlueprintType)
 struct FAttackTraceInfo
 {
@@ -71,13 +71,13 @@ public:
 
 	//
 
-	// 타이밍
+// timing
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace Attack Info: Setting Timing")
 	float AttackTime = -1.0f;
 
 	//
 
-	// Attack Component에서 사용되는 변수들
+// Variables used in Attack Component
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Trace Attack Info: Setting End Condition")
 	float AttackDuration = -1.0f;
@@ -95,7 +95,7 @@ public:
 
 };
 
-// 공격 정보들을 관리하는 데이터
+// Data that manages attack information
 USTRUCT(BlueprintType)
 struct FAttackTraceInfos
 {
@@ -108,7 +108,7 @@ public:
 
 };
 
-// USA Character Attack Component에서 활용되는 데이터
+// Data utilized by USA Character Attack Component
 USTRUCT(BlueprintType)
 struct FAttackTraceSceneInfo
 {
@@ -122,7 +122,7 @@ public:
 		const FVector& InLocation,
 		const FVector& InFoward, const FVector& InRight, const FVector& InUp);
 
-	// 카피 후 활용
+// Use after copying
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trace Attack Scene Info")
 	FAttackTraceInfo DefaultAttackTraceInfo;
 
@@ -198,7 +198,7 @@ struct FSpawnActorData
 
 // ========================================================================================
 
-// InputID와 InputAction, GameplayAbility를 관리하기 위한 Struct
+// Struct to manage InputID, InputAction, and GameplayAbility
 USTRUCT(BlueprintType)
 struct FUSAGameplayAbilityHandle
 {
@@ -294,7 +294,7 @@ struct FUSAGameplayTagInputInfo
 
 // ========================================================================================
 
-// 이동 수치 설정
+// Set movement value
 
 USTRUCT(BlueprintType)
 struct FCharacterMovementWalkInfo
@@ -324,7 +324,7 @@ public:
 
 // ========================================================================================
 
-// 애니메이션 재생 구조체
+// Animation playback structure
 
 USTRUCT(BlueprintType)
 struct FPlayAnimMontageData

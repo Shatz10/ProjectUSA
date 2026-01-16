@@ -60,14 +60,14 @@ void FUSACharacterCapsuleInfo::RenewCharacterCapsuleLocation(ACharacter* InChara
 		return;
 	}
 
-	// 카메라 예외 처리
+// Camera exception handling
 	FVector CameraSpringArmLocation = FVector::ZeroVector;
 	if (IsValid(InSpringArmComponent))
 	{
 		CameraSpringArmLocation = InSpringArmComponent->GetComponentLocation();
 	}
 
-	// 위치 갱신
+// update location
 
 	UCharacterMovementComponent* CharacterMovementComponent = InCharacter->GetCharacterMovement();
 
@@ -86,7 +86,7 @@ void FUSACharacterCapsuleInfo::RenewCharacterCapsuleLocation(ACharacter* InChara
 		return;
 	}
 
-	// 땅에 파고 들지 않기 위한 보정
+// Correction to avoid digging into the ground
 	FVector GroundHitLocation = FVector::ZeroVector;
 	if (CharacterMovementComponent->CurrentFloor.bBlockingHit)
 	{
@@ -120,7 +120,7 @@ void FUSACharacterCapsuleInfo::RenewCharacterCapsuleLocation(ACharacter* InChara
 
 	InCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 
-	// 메쉬 위치 갱신
+// Update mesh position
 
 	FVector NewUpdatedComponentsLocation = FVector::ZeroVector;
 
@@ -145,7 +145,7 @@ void FUSACharacterCapsuleInfo::RenewCharacterCapsuleLocation(ACharacter* InChara
 	// Simulated Mesh
 	InCharacter->CacheInitialMeshOffset(NewUpdatedComponentsLocation, FRotator(0.0f, -90.0f, 0.0f));
 
-	// 카메라 예외 처리
+// Camera exception handling
 	if (IsValid(InSpringArmComponent))
 	{
 		InSpringArmComponent->SetWorldLocation(CameraSpringArmLocation);

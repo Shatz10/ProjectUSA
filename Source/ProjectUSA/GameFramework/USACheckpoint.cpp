@@ -79,14 +79,14 @@ void AUSACheckpoint::OnDetectBoxOverlapBegin(UPrimitiveComponent* OverlappedComp
 		return;
 	}
 
-	// 서버라면 체크포인트 설정
+// If it is a server, set checkpoint
 	AUSAGameModeBase* USAGameModeBase = Cast<AUSAGameModeBase>(GetWorld()->GetAuthGameMode());
 	if (IsValid(USAGameModeBase))
 	{
 		USAGameModeBase->UpdatePlayerControllerCheckpoint(USAPlayerController, CheckpointIndex);
 	}
 
-	// 플레이어가 로컬이면 블루프린트 이벤트 호출
+// If the player is local, call the Blueprint event
 	if (USAPlayerController->IsLocalPlayerController())
 	{
 		TArray<AActor*> GetActors;

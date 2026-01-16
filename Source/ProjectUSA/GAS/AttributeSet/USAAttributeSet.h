@@ -150,6 +150,6 @@ protected:
 	UFUNCTION()
 	void OnRep_MaxSpiritEmblems();
 	
-	// 체력 관련 어트리뷰트 접근 위함
+// To access physical strength related attributes
 	friend class AUSACharacterBase;
 };

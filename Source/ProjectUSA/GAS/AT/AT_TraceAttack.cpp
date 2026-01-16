@@ -91,7 +91,7 @@ void UAT_TraceAttack::AttackTraceAndSetNextTimer()
 	while (CurrentAttackTraceIndex < AttackTraceData->AttackTraceInfos.Num()
 		&& PrevAttackTraceTime + SMALL_NUMBER >= NextSpawnTime)
 	{
-		// 공격 방향 설정
+// Set attack direction
 		FVector FinalAttackDirection = MyCharacter->GetActorForwardVector();
 		FVector FinalAttackDirectionRight = MyCharacter->GetActorRightVector();
 		FVector FinalAttackDirectionUp = FVector::UpVector;
@@ -104,7 +104,7 @@ void UAT_TraceAttack::AttackTraceAndSetNextTimer()
 			FinalAttackDirectionUp = FVector::CrossProduct(FinalAttackDirection, FinalAttackDirectionRight);
 		}
 
-		// 인스턴트 / 지속형 판단
+// Instant / Continuous judgment
 		if (AttackTraceData->AttackTraceInfos[CurrentAttackTraceIndex].AttackDuration > SMALL_NUMBER)
 		{
 			if (AttackableInterface != nullptr
@@ -140,7 +140,7 @@ void UAT_TraceAttack::AttackTraceAndSetNextTimer()
 		float AttackDamage = AttackTraceData->AttackTraceInfos[CurrentAttackTraceIndex].AttackDamage;
 		float AttackTraceRadius = AttackTraceData->AttackTraceInfos[CurrentAttackTraceIndex].AttackTraceRadius;
 
-		// 싱글 트래이스
+// single trace
 		if (AttackTraceData->AttackTraceInfos[CurrentAttackTraceIndex].bIsUsingSigleTrace == true)
 		{
 			FHitResult HitResult;
@@ -187,7 +187,7 @@ void UAT_TraceAttack::AttackTraceAndSetNextTimer()
 				USADamageableInterface->TakeDamage(AttackDamage, AttackDamageEvent, MyCharacter->GetController(), MyCharacter);
 			}
 		}
-		// 멀티 트래이스
+// multi trace
 		else
 		{
 			TArray<FHitResult> HitResults;

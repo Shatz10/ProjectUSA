@@ -42,7 +42,7 @@ void UGA_CharacterChangeItem::EndAbility(const FGameplayAbilitySpecHandle Handle
 
 void UGA_CharacterChangeItem::ChangeItemFromUSACharacter()
 {
-	// 컴포넌트 설정
+// Component settings
 	ACharacter* MyCharacter = nullptr;
 	AUSACharacterBase* MyUSACharacter = nullptr;
 

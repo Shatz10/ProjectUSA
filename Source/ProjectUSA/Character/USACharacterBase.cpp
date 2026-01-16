@@ -300,7 +300,7 @@ void AUSACharacterBase::Destroyed()
 		ASC->ClearAllAbilities();
 	}
 
-	// 무기 드랍
+// Weapon drop
 	DropWeapons(true);
 
 	Super::Destroyed();
@@ -503,10 +503,10 @@ FVector AUSACharacterBase::GetUSACharacterDirection_InputMovement()
 
 FVector AUSACharacterBase::GetUSACharacterDirection_Target()
 {
-	// 임시 타겟팅 판단 위함
+// To determine temporary targeting
 	//bool bIsInstantTargeting = false;
 
-	// 우선 널 포인터라면 임시 타겟팅으로 판단
+// First, if it is a null pointer, it is judged as temporary targeting.
 	//if (CurrentTargetableActor == nullptr)
 	//{
 	//	bIsInstantTargeting = true;
@@ -544,7 +544,7 @@ FVector AUSACharacterBase::GetUSACharacterDirection_Target()
 
 	Result.Normalize();
 
-	// 임시 타겟팅인 경우, 원상복구
+// In case of temporary targeting, restore to original state
 	//if (bIsInstantTargeting)
 	//{
 	//	CurrentTargetableActor = nullptr;
@@ -597,9 +597,9 @@ void AUSACharacterBase::SetPlayerDefaults()
 
 void AUSACharacterBase::PlaySound_Footstep()
 {
-	float Radius = 10.0f; // 트레이스 반경 설정
-	TArray<AActor*> IgnoreActors; // 트레이스에서 무시할 액터들
-	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None; // 디버그 트레이스 타입 설정
+floatRadius = 10.0f; // set trace radius
+TArray<AActor*> IgnoreActors; // Actors to ignore in the trace
+EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None; // Set debug trace type
 
 	FVector StartLocation = GetActorLocation();
 
@@ -738,7 +738,7 @@ void AUSACharacterBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// 서버에서 수행
+// perform on server
 
 	if (bIsASCInitialized == false)
 	{
@@ -753,7 +753,7 @@ void AUSACharacterBase::PossessedBy(AController* NewController)
 		BeginStartAbilities();
 	}
 
-	// 시작할 때 자동으로 콘솔 입력
+// Automatically enter console when starting
 	//APlayerController* PlayerController = Cast <APlayerController>(NewController);
 	//if (PlayerController != nullptr)
 	//{
@@ -913,7 +913,7 @@ void AUSACharacterBase::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 
-		// 조작감 개선을 위해 사용할 변수
+// Variables to be used to improve the feeling of operation
 		USACharacterInputMovementDirection = ForwardDirection * MovementVector.Y;
 		USACharacterInputMovementDirection += RightDirection * MovementVector.X;
 	}
@@ -1466,7 +1466,7 @@ bool AUSACharacterBase::SetCurrentWeapon(int32 InEquipIndex, AUSAWeaponBase* InW
 
 void AUSACharacterBase::PickUpSomething(IUSAPickableInterface* InPick)
 {
-	// 서버에서만 수행하도록
+// to be performed only on the server
 	if (UKismetSystemLibrary::IsServer(GetWorld()) == false
 		&& UKismetSystemLibrary::IsStandalone(GetWorld()) == false)
 	{
@@ -1574,7 +1574,7 @@ void AUSACharacterBase::MulticastRPC_RespawnUSACharacter_Implementation()
 			}
 		}
 
-		// 리스폰
+// respawn
 		FGameplayAbilitySpec* GameplayAbilitySpec_Respawn = ASC->FindAbilitySpecFromClass(GameplayAbility_Respawn);
 
 		if (GameplayAbilitySpec_Respawn)
@@ -1609,7 +1609,7 @@ void AUSACharacterBase::MulticastRPC_WinUSACharacter_Implementation()
 {
 	if (ASC != nullptr)
 	{
-		// 승리
+// win
 		FGameplayAbilitySpec* GameplayAbilitySpec_Win = ASC->FindAbilitySpecFromClass(GameplayAbility_Win);
 
 		if (GameplayAbilitySpec_Win)
@@ -1654,7 +1654,7 @@ void AUSACharacterBase::ServerRPC_SetCurrentWeaponsUsingStartWeaponClassList_Imp
 
 void AUSACharacterBase::ServerRPC_DropWeapons_Implementation()
 {
-	// 서버 클라 모두 수행
+// Perform all server clients
 	MulticastRPC_DropWeapons();
 }
 
@@ -1808,7 +1808,7 @@ bool AUSACharacterBase::PostUseItem()
 	return true;
 }
 
-// TODO: 추후 중력 때문에 미약하게 낙하하는 이슈 수정
+// TODO: Fixed the issue of weak falling due to gravity in the future
 //void AUSACharacterBase::AdjustVelocityWithVelocityZero()
 //{
 	//if (bIsVelocityZero)
@@ -1834,19 +1834,19 @@ bool AUSACharacterBase::PostUseItem()
 
 float AUSACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	// 서버에서만 대미지 적용 수행
+// Apply damage only on the server
 	if (GetWorld()->GetAuthGameMode() == nullptr)
 	{
 		return 0;
 	}
 
-	// 상대가 무적 상태라면 대미지 적용하지 않음
+// If the opponent is invincible, no damage is applied
 	if (ASC && ASC->GetGameplayTagCount(USA_CHARACTER_STATE_INVINCIBLE) > 0)
 	{
 		return 0;
 	}
 
-	// 상대가 무적 상태라면 쓰러진 경우면 적용하지 않음
+// Does not apply if the opponent is invincible or knocked down
 	if (ASC && ASC->GetGameplayTagCount(USA_CHARACTER_STATE_DEAD) > 0)
 	{
 		return 0;
@@ -1855,14 +1855,14 @@ float AUSACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 
 	float ResultDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	// 서버에서만 수행하기 때문에, 플레이어 및 AI 컨트롤러를 활용할 수 있음
+// Since it is only performed on the server, players and AI controllers can be used
 	AAIController* EventAIController = Cast<AAIController>(EventInstigator);
 	APlayerController* EventPlayerController = Cast<APlayerController>(EventInstigator);
 
 	AAIController* MyAIController = Cast<AAIController>(GetController());
 	APlayerController* MyPlayerController = Cast<APlayerController>(GetController());
 
-	// 팀킬 방지를 위한 검사 (서로 같은 컨트롤러를 검사하는 이유는 스스로 대미지를 받는 공격을 구현하기 위함)
+// Check to prevent team kill (the reason for checking the same controller is to implement an attack that takes damage on its own)
 	if (MyAIController && EventAIController && (MyAIController != EventAIController))
 	{
 		return 0;
@@ -1873,7 +1873,7 @@ float AUSACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 		return 0;
 	}
 	
-	// 패리 중일 때 제외하고, 대미지 적용
+// Apply damage, except when parrying
 	if (IsValid(ASC) == true
 		&& ASC->HasMatchingGameplayTag(USA_CHARACTER_ACTION_PARRY) == false)
 	{
@@ -1884,11 +1884,11 @@ float AUSACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 			USAAttributeSet->SetDamage(DamageAmount);
 		}
 
-		// 가해자의 상대 피격 시 CameraShake 수행을 위한 MulticastRPC
+// MulticastRPC to perform CameraShake when the perpetrator is attacked by the opponent
 		MulticastRPC_TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	}
 
-	// 넉백 어빌리티 수행
+// Perform knockback ability
 	APawn* EventInstigatorPawn = nullptr;
 	if (IsValid(EventInstigator) == true)
 	{
@@ -1903,7 +1903,7 @@ float AUSACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 
 void AUSACharacterBase::ClientRPC_TakeDamage_Implementation(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	// 가해자의 카메라 쉐이크 수행 
+// Perform the offender's camera shake
 	if (AUSACharacterBase* CharacterCauser = Cast<AUSACharacterBase>(DamageCauser))
 	{
 		CharacterCauser->StartCameraShake_HitSuccess(DamageEvent.DamageTypeClass);
@@ -1912,37 +1912,37 @@ void AUSACharacterBase::ClientRPC_TakeDamage_Implementation(float DamageAmount, 
 
 void AUSACharacterBase::MulticastRPC_TakeDamage_Implementation(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	// 가해자의 CameraShake 수행 
+//Perform the perpetrator's CameraShake
 	if (AUSACharacterBase* CharacterCauser = Cast<AUSACharacterBase>(DamageCauser))
 	{
-		// StartCameraShake_HitSuccess()는 virtual 형태로 만들어 놓은 함수
-		// Player에서 override를 통해 CameraShake 과정을 구현함
+// StartCameraShake_HitSuccess() is a function created in virtual form
+// Implement CameraShake process through override in Player
 		CharacterCauser->StartCameraShake_HitSuccess(DamageEvent.DamageTypeClass);
 	}
 }
 
 
-// 캐릭터 넉백을 구현하는 함수
-// 실제 물리 계산을 수행하는 서버에서만 동작하며, 호출자는 TakeDamage() 함수
+// Function that implements character knockback
+// Only operates on servers that perform actual physics calculations, and the caller must use the TakeDamage() function
 void AUSACharacterBase::ApplyDamageMomentum
 (float DamageTaken, 
 	FDamageEvent const& DamageEvent, 
 	APawn* PawnInstigator, 
 	AActor* DamageCauser)
 {
-	// ASC의 유효성 확인
+// Check validity of ASC
 	if (IsValid(ASC) == false)
 	{
 		return;
 	}
 
-	// 죽은 상태인 경우 넉백 무시
+// Ignore knockback if dead
 	if (ASC->HasMatchingGameplayTag(USA_CHARACTER_STATE_DEAD))
 	{
 		return;
 	}
 
-	// 캐릭터의 현재 체력을 확인하여 죽음 상태를 판단
+// Determine the death state by checking the character's current physical strength
 	float CheckCurrentHealth = 0.0f;
 	bool CheckIsAttributeFound = false;
 	CheckCurrentHealth 
@@ -1956,17 +1956,17 @@ void AUSACharacterBase::ApplyDamageMomentum
 		bIsJustDead = true;
 	}
 	
-	// 현재 캐릭터가 패링 상태인지 확인
+// Check if the current character is in parrying state
 	bool bIsParrying = false;
 	if (ASC->HasMatchingGameplayTag(USA_CHARACTER_ACTION_PARRY))
 	{
 		bIsParrying = true;
 	}
 
-	// 현재 캐릭터가 공중에 있는지 확인
+// Check if the current character is in the air
 	bool bIsFallingLocally = GetMovementComponent()->IsFalling();
 
-	// 대미지가 현재 캐릭터의 아머를 초과하는지 확인 (대미지가 낮으면 넉백을 수행하지 않음)
+// Check if the damage exceeds the current character's armor (if the damage is low, no knockback is performed)
 	bool bIsBiggerDamageThanArmor = true;
 
 	float CurrentArmor = 0.0f;
@@ -1979,24 +1979,24 @@ void AUSACharacterBase::ApplyDamageMomentum
 		bIsBiggerDamageThanArmor = false;
 	}
 
-	// 이동 방향을 결정하기 위한 변수
+// Variable to determine movement direction
 	FVector NewDirection = FVector::ForwardVector;
 
-	// 공격 정보를 가져오기 위한 변수 초기화
+// Initialize variables to retrieve attack information
 	TSubclassOf<UGameplayAbility> DamageAbilityClass;
 	FVector AttackDirection;
 	FHitResult HitResult;
 	TSubclassOf<UDamageType> DamageType;
 
-	// DamageEvent를 통해 DamageType을 가져옴
+// Get DamageType via DamageEvent
 	DamageEvent.GetBestHitInfo(nullptr, nullptr, HitResult, AttackDirection);
 	DamageType = DamageEvent.DamageTypeClass;
 
-	// DamageType를 통해 이동 방향 계산
+// Calculate movement direction through DamageType
 	if (IsValid(USADamageType_Explosion) == true
 		&& USADamageType_Explosion == DamageType)
 	{
-		// 폭파인 경우, 이동 방향은 공격점으로부터 대미지 주체의 중점까지의 방향으로 설정
+// In case of explosion, the direction of movement is set from the attack point to the midpoint of the subject of damage.
 		NewDirection = ((HitResult.TraceStart + HitResult.TraceEnd) * 0.5f
 			- GetActorLocation());
 		NewDirection.Z = 0.0f;
@@ -2004,16 +2004,16 @@ void AUSACharacterBase::ApplyDamageMomentum
 	}
 	else
 	{
-		// 일반 공격인 경우, DamageEvent의 AttackDirection을 이용하여 이동 방향 결정
+// In case of a normal attack, determine the direction of movement using DamageEvent's AttackDirection
 		NewDirection = AttackDirection * -1.0f;
 		NewDirection.Z = 0.0f;
 		NewDirection.Normalize();
 	}
 
-	// 수행할 넉백 어빌리티 결정
+// Determine the knockback ability to perform
 	if (bIsJustDead)
 	{
-		// 패링 성공으로 인한 넉백
+// Knockback due to successful parrying
 		if (bIsFallingLocally)
 		{
 			if (GameplayAbilities_Death.Contains(DamageType))
@@ -2031,7 +2031,7 @@ void AUSACharacterBase::ApplyDamageMomentum
 	}
 	else if (bIsParrying)
 	{
-		// 패링 성공으로 인한 넉백
+// Knockback due to successful parrying
 		if (bIsFallingLocally)
 		{
 			if (GameplayAbilities_ParryMomentumAir.Contains(DamageType))
@@ -2049,7 +2049,7 @@ void AUSACharacterBase::ApplyDamageMomentum
 	}
 	else
 	{
-		// 일반 대미지로 인한 넉백
+// Knockback due to normal damage
 		if (bIsBiggerDamageThanArmor == false)
 		{
 			DamageAbilityClass = nullptr;
@@ -2073,7 +2073,7 @@ void AUSACharacterBase::ApplyDamageMomentum
 		}
 	}
 
-	// 서버 및 클라이언트에게 수행할 이동 방향 및 넉백 어빌리티 전달
+// Deliver the direction of movement and knockback ability to the server and client
 	MulticastRPC_ApplyDamageMomentum(NewDirection, DamageAbilityClass);
 }
 
@@ -2084,21 +2084,21 @@ void AUSACharacterBase::ApplyDamageMomentum
 
 void AUSACharacterBase::ApplyDamageHitNiagaraEffect(AController* EventInstigator, AActor* DamageCauser, UNiagaraSystem* SystemTemplate, bool bIsOffset)
 {
-	// 만약 죽은 상태라면 처리하지 않음
+// If it's dead, don't process it.
 	if (ASC && ASC->HasMatchingGameplayTag(USA_CHARACTER_STATE_DEAD) == true)
 	{
 		return;
 	}
 
-	// 팀킬 방지
-	// 서버에서만 수행하기 때문에 컨트롤러를 활용할 수 있음
+// Prevent team kill
+// Since it is only performed on the server, a controller can be used
 	AAIController* EventAIController = Cast<AAIController>(EventInstigator);
 	APlayerController* EventPlayerController = Cast<APlayerController>(EventInstigator);
 
 	AAIController* MyAIController = Cast<AAIController>(GetController());
 	APlayerController* MyPlayerController = Cast<APlayerController>(GetController());
 
-	// 같은 팀 (서로 같은 컨트롤러를 검사하는 이유는 스스로 맞는 공격을 구현하기 위함)
+// Same team (the reason for checking the same controller is to implement a suitable attack)
 	if (MyAIController && EventAIController && (MyAIController != EventAIController))
 	{
 		return;
@@ -2277,7 +2277,7 @@ void AUSACharacterBase::MulticastRPC_ApplyDamageMomentum_Implementation
 		return;
 	}
 
-	// 카메라 예외 처리
+// Camera exception handling
 	FRotator CameraSpringArmRotation = FRotator::ZeroRotator;
 	if (IsValid(CameraSpringArmComponent))
 	{
@@ -2287,7 +2287,7 @@ void AUSACharacterBase::MulticastRPC_ApplyDamageMomentum_Implementation
 	SetActorRotation(InNewDirection.Rotation());
 	UpdateComponentTransforms();
 
-	// 카메라 예외 처리
+// Camera exception handling
 	if (IsValid(CameraSpringArmComponent))
 	{
 		CameraSpringArmComponent->SetWorldRotation(CameraSpringArmRotation);
@@ -2376,7 +2376,7 @@ void AUSACharacterBase::PostSetupGAS()
 		return;
 	}
 
-	// 게임 어빌리티 부여
+// Grant game abilities
 	if (HasAuthority() == true)
 	{
 		for (const auto& GameplayTriggerAbility : GameplayAbilities_Trigger)
@@ -2397,14 +2397,14 @@ void AUSACharacterBase::PostSetupGAS()
 			ASC->GiveAbility(GameplayAbilityActionSpec);
 		}
 
-		// 게임 시작 어빌리티
+// Game start ability
 		for (const auto& GameplayStartAbility : GameplayAbilities_Start)
 		{
 			FGameplayAbilitySpec GameplayAbilitySpec(GameplayStartAbility);
 			ASC->GiveAbility(GameplayStartAbility);
 		}
 
-		// 데미지 어빌리티
+// Damage Ability
 		for (const auto& GameplayDamageAbility : GameplayAbilities_DamageGround)
 		{
 			FGameplayAbilitySpec GameplayAbilitySpec(GameplayDamageAbility.Value);
@@ -2417,7 +2417,7 @@ void AUSACharacterBase::PostSetupGAS()
 			ASC->GiveAbility(GameplayAbilitySpec);
 		}
 
-		// 패리 모멘텀 어빌리티
+// Parry Momentum Ability
 		for (const auto& GameplayDamageAbility : GameplayAbilities_ParryMomentumGround)
 		{
 			FGameplayAbilitySpec GameplayAbilitySpec(GameplayDamageAbility.Value);
@@ -2430,7 +2430,7 @@ void AUSACharacterBase::PostSetupGAS()
 			ASC->GiveAbility(GameplayAbilitySpec);
 		}
 
-		// 죽음 어빌리티
+// Death Ability
 		for (const auto& GameplayTriggerAbility : GameplayAbilities_Death)
 		{
 			FGameplayAbilitySpec GameplayAbilitySpec(GameplayTriggerAbility.Value);
@@ -2443,18 +2443,18 @@ void AUSACharacterBase::PostSetupGAS()
 			ASC->GiveAbility(GameplayAbilitySpec);
 		}
 
-		// 기타 어빌리티
+// Other Abilities
 		for (const auto& GameplayTriggerAbility : GameplayAbilities_ETC)
 		{
 			FGameplayAbilitySpec GameplayAbilitySpec(GameplayTriggerAbility);
 			ASC->GiveAbility(GameplayAbilitySpec);
 		}
 
-		// 리스폰 어빌리티
+// Respawn Ability
 		FGameplayAbilitySpec GameplayAbilitySpec_Respawn(GameplayAbility_Respawn);
 		ASC->GiveAbility(GameplayAbilitySpec_Respawn);
 
-		// 승리 어빌리티
+// Victory Ability
 		FGameplayAbilitySpec GameplayAbilitySpec_Win(GameplayAbility_Win);
 		ASC->GiveAbility(GameplayAbilitySpec_Win);
 	}
@@ -2570,7 +2570,7 @@ void AUSACharacterBase::BeginStartAbilities()
 			}
 		}
 
-		// 리스폰
+// respawn
 		FGameplayAbilitySpec* GameplayAbilitySpec_Respawn = ASC->FindAbilitySpecFromClass(GameplayAbility_Respawn);
 
 		if (GameplayAbilitySpec_Respawn)
@@ -2589,7 +2589,7 @@ void AUSACharacterBase::BeginStartAbilities()
 
 void AUSACharacterBase::SetupAttributeSet()
 {
-	// 어트리뷰트 설정
+// Attribute settings
 	if (ASC != nullptr)
 	{
 		if (ASC->GetSet <UUSAAttributeSet>() != nullptr)
@@ -2611,7 +2611,7 @@ void AUSACharacterBase::SetupAttributeSet()
 
 void AUSACharacterBase::ResetAttributeSet()
 {
-	// 어트리뷰트 설정
+// Attribute settings
 	CharacterAttributeSetInfo.RenewUSACharacterAttributeSetData(ASC);
 }
 
@@ -2669,10 +2669,10 @@ void AUSACharacterBase::OnRep_CurrentEquipedWeapons(TArray<AUSAWeaponBase*> Prev
 
 void AUSACharacterBase::OnRep_CurrentOwnedItems(TArray<TSubclassOf<AUSAItemBase>> PrevItems)
 {
-	// 획득
+// Acquire
 	if (CurrentOwnedItems.Num() > PrevItems.Num())
 	{
-		// 항상 뒤로 Add 되니...
+// It's always added backwards...
 		TSubclassOf<AUSAItemBase> TargetItem = CurrentOwnedItems[CurrentOwnedItems.Num() - 1];
 		
 		if (IsValid(TargetItem) == true
@@ -2683,7 +2683,7 @@ void AUSACharacterBase::OnRep_CurrentOwnedItems(TArray<TSubclassOf<AUSAItemBase>
 
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CharacterPickupSound, GetActorLocation());
 	}
-	// 소모
+// consumption
 	//else if (CurrentOwnedItems.Num() < PrevItems.Num())
 	//{
 	//	if (IsValid(GetCurrentItemClass()) == true
