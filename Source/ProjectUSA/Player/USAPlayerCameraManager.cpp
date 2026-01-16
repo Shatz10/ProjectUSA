@@ -11,7 +11,7 @@ UCameraShakeBase* AUSAPlayerCameraManager::StartCameraShake
 	ECameraShakePlaySpace PlaySpace, 
 	FRotator UserPlaySpaceRot)
 {
-// To determine the layer
+	// Layer를 판단하기 위함
 	UUSACameraShakeBase* USACameraShakeBase 
 		= Cast <UUSACameraShakeBase>(ShakeClass->GetDefaultObject());
 
@@ -19,24 +19,24 @@ UCameraShakeBase* AUSAPlayerCameraManager::StartCameraShake
 
 	if (USACameraShakeBase != nullptr)
 	{
-// Get Layer
+		// Layer를 가져옴
 		CameraShakeBaseLayerIndex 
 			= USACameraShakeBase->GetCameraShakeBaseLayerIndex();
 
-// If it is a valid layer
+		// 유효한 Layer라면
 		if (CameraShakeBaseLayerIndex >= 0)
 		{
-// If a key corresponding to the corresponding layer exists in the map
+			// 만약 Map에서 해당 Layer에 대응하는 Key가 존재할 때
 			if (CurrentCameraShakeBaseMap.Contains(CameraShakeBaseLayerIndex))
 			{
-// When an existing CameraShake exists that corresponds to the layer of the requested CameraShake
+				// 요청한 CameraShake의 Layer에 대응되는 기존의 CameraShake 존재할 때
 				if (CurrentCameraShakeBaseMap[CameraShakeBaseLayerIndex] != nullptr)
 				{
-// Stop existing CameraShake
+					// 기존의 CameraShake를 중단함
 					StopCameraShake(CurrentCameraShakeBaseMap[CameraShakeBaseLayerIndex], true);
 				}
 			}
-// If there is no key corresponding to the requested CameraShake Layer
+			// 요청한 CameraShake의 Layer에 대응하는 Key가 없는 경우
 			else
 			{
 				CurrentCameraShakeBaseMap.Add({ CameraShakeBaseLayerIndex , nullptr });
@@ -44,11 +44,11 @@ UCameraShakeBase* AUSAPlayerCameraManager::StartCameraShake
 		}
 	}
 
-// Run CameraShake
+	// CameraShake 실행
 	UCameraShakeBase* InstCameraShakeBase 
 		= Super::StartCameraShake(ShakeClass, Scale, PlaySpace, UserPlaySpaceRot);
 
-// Update currently running CameraShake
+	// 현재 실행 중인 CameraShake 갱신
 	if (CameraShakeBaseLayerIndex >= 0)
 	{
 		CurrentCameraShakeBaseMap[CameraShakeBaseLayerIndex] = InstCameraShakeBase;

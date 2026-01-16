@@ -36,7 +36,7 @@ AUSAWeaponBase::AUSAWeaponBase()
 	bReplicates = true;
 	SetReplicateMovement(true);
 
-// Set the mesh holder as the root -> To change the center of the mesh
+	// 메쉬 홀더를 루트로 설정 -> 메쉬의 중심을 바꾸기 위함
 	//WeaponCollisionComponent = CreateDefaultSubobject <USphereComponent>(TEXT("Weapon Mesh Holder"));
 	//RootComponent = WeaponCollisionComponent;
 	//WeaponCollisionComponent->SetSimulatePhysics(true);
@@ -49,7 +49,7 @@ AUSAWeaponBase::AUSAWeaponBase()
 	//WeaponCollisionComponent->BodyInstance.bLockYRotation = true;
 	//WeaponCollisionComponent->BodyInstance.bLockZRotation = true;
 
-// create mesh
+	// 메쉬 생성
 	//WeaponMesh = CreateDefaultSubobject <USkeletalMeshComponent>(TEXT("Weapon Skeletal Mesh"));
 	//WeaponMesh->SetupAttachment (WeaponCollisionComponent);
 	//WeaponMesh->SetCollisionProfileName(TEXT("NoCollision"), false);
@@ -60,14 +60,14 @@ AUSAWeaponBase::AUSAWeaponBase()
 	//WeaponStaticMesh->SetCollisionProfileName(TEXT("NoCollision"), false);
 	//WeaponStaticMesh->SetGenerateOverlapEvents(false);
 
-//// Set range
+	//// 범위 설정
 	//WeaponBoxComponent = CreateDefaultSubobject <UBoxComponent>(TEXT("Weapon Box Component"));
 	//WeaponBoxComponent->SetupAttachment(WeaponCollisionComponent);
 	//WeaponBoxComponent->SetCollisionProfileName(TEXT("OverlapAll"), false);
 	//WeaponBoxComponent->SetSimulatePhysics(false);
 	//WeaponBoxComponent->SetGenerateOverlapEvents(true);
 
-// rotation settings
+	// 회전 설정
 	//WeaponRotatingMovementCompont = CreateDefaultSubobject <URotatingMovementComponent>(TEXT("Weapon Rotating Movement Component"));
 	//WeaponRotatingMovementCompont->SetAutoActivate(false);
 
@@ -159,7 +159,7 @@ bool AUSAWeaponBase::PickUpByUSACharacter(UAbilitySystemComponent* InASC, AUSACh
 		return false;
 	}
 
-// ASC new update
+	// ASC 새 갱신
 	SetPickableActorOwner(InCharacter);
 
 	return true;
@@ -314,7 +314,7 @@ bool AUSAWeaponBase::ClearGameplayWeaponAbilitesToASC(AUSACharacterBase* InChara
 
 //void AUSAWeaponBase::OnBoxComponentHitAndCheckIsGround(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 //{
-// // Only performed on the server
+//	// 서버에서만 수행
 //	//if (UKismetSystemLibrary::IsServer(GetWorld()) == false)
 //	//{
 //	//	return;

@@ -77,27 +77,27 @@ void UUSAJellyEffectComponent::SetMeshStartLocation(FVector InVector)
 
 void UUSAJellyEffectComponent::PlayJellyEffect(UUSAJellyEffectData* InJellyEffectData)
 {
-// Determination of jelly data validity
+	// 젤리 데이터 유효성 판단
 	if (IsValid(InJellyEffectData) == false)
 	{
 		return;
 	}
 
-// Check existence of jelly effect target
+	// 젤리 이펙트 대상 존재 확인
 	if (IsValid(GetJellySceneComponent()) == false)
 	{
 		return;
 	}
 
-// jelly data and startup settings
+	// 젤리 데이터 및 시작 설정
 	CurrentJellyEffectData = InJellyEffectData;
 	bIsPlayingJellyEffect = true;
 
-// set start and end time
+	// 시작 및 마지막 시간 설정
 	PlayJellyEffectTime = GetWorld()->GetTimeSeconds();
 	EndJellyEffectTime = PlayJellyEffectTime + CurrentJellyEffectData->GetJellyEffectTime();
 
-// Perform jelly effect (first tick -> 0.0f)
+	// 젤리 이펙트 수행 (첫 틱 -> 0.0f)
 	CurrentJellyEffectLocation = CurrentJellyEffectData->GetLocationVectorByRatio(0.0f);
 	CurrentJellyEffectRotation = FRotator::MakeFromEuler(CurrentJellyEffectData->GetRotationVectorByRatio(0.0f));
 	CurrentJellyEffectScale = CurrentJellyEffectData->GetScaleVectorByRatio(0.0f);
@@ -119,13 +119,13 @@ void UUSAJellyEffectComponent::StopJellyEffect()
 
 void UUSAJellyEffectComponent::TickJellyEffect()
 {
-// Determine if playing
+	// 플레이 중인지 판단
 	if (bIsPlayingJellyEffect)
 	{
-// Reset the current jelly effect scale
+		// 현재 젤리 이펙트 스케일 초기화
 		CurrentJellyEffectScale = FVector::OneVector;
 
-// If there is no data, do not perform after initialization
+		// 만약 데이터가 없으면 초기화 후 수행하지 않음
 		if (IsValid(CurrentJellyEffectData) == false)
 		{
 			bIsPlayingJellyEffect = false;
@@ -133,11 +133,11 @@ void UUSAJellyEffectComponent::TickJellyEffect()
 			return;
 		}
 
-// If all time elapses
+		// 만약 시간이 모두 경과하는 경우
 		float CurrentJellyEffectTime = GetWorld()->GetTimeSeconds();
 		if (CurrentJellyEffectTime > EndJellyEffectTime)
 		{
-// Perform last moment joint effect (1.0f)
+			// 마지막 순간의 절리 이펙트 수행 (1.0f)
 			CurrentJellyEffectLocation
 				= CurrentJellyEffectData->GetLocationVectorByRatio(1.0f);
 			CurrentJellyEffectRotation
@@ -146,8 +146,8 @@ void UUSAJellyEffectComponent::TickJellyEffect()
 			CurrentJellyEffectScale
 				= CurrentJellyEffectData->GetScaleVectorByRatio(1.0f);
 
-// If you don't keep the last effect
-// Set bIsPlayingJellyEffect to false to stop tick operation
+			// 마지막 이펙트를 유지하지 않으면
+			// bIsPlayingJellyEffect를 false로 설정하여 Tick 연산 멈추기
 			if (CurrentJellyEffectData->GetJellyKeepLastEffect() == false)
 			{
 				bIsPlayingJellyEffect = false;
@@ -156,12 +156,12 @@ void UUSAJellyEffectComponent::TickJellyEffect()
 			return;
 		}
 
-// Calculate progress percentage based on current time
+		// 현재 시간에 따라, 진행 정도 비율 계산
 		float CurrentJellyEffectRatio 
 			= (CurrentJellyEffectTime - PlayJellyEffectTime) 
 			/ (EndJellyEffectTime - PlayJellyEffectTime);
 
-// Perform jelly effect
+		// 젤리 이펙트 수행
 		CurrentJellyEffectLocation 
 			= CurrentJellyEffectData->GetLocationVectorByRatio(CurrentJellyEffectRatio);
 		CurrentJellyEffectRotation 

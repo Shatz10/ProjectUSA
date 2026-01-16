@@ -64,7 +64,7 @@ void AUSACharacterNonPlayer::SetupGAS()
 
 void AUSACharacterNonPlayer::UpdateCurrentTargetableActor()
 {
-// Usually processed by BT
+	// 보통 BT에서 처리
 	
 	// ... 
 

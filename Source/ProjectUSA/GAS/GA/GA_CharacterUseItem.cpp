@@ -25,7 +25,7 @@ void UGA_CharacterUseItem::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-// Component settings
+	// 컴포넌트 설정
 	ACharacter* MyCharacter = nullptr;
 	AUSACharacterBase* MyUSACharacter = nullptr;
 
@@ -53,24 +53,24 @@ void UGA_CharacterUseItem::ActivateAbility(const FGameplayAbilitySpecHandle Hand
 		return;
 	}
 
-// shutdown settings
+	// 종료 설정
 	UAT_WaitDelay* AbilityTaskDelay = UAT_WaitDelay::GetNewAbilityTask_WaitDelay(this, UseItemPeriod);
 	AbilityTaskDelay->OnFinish.AddDynamic(this, &UGA_CharacterUseItem::SimpleEndAbility);
 	AbilityTaskDelay->ReadyForActivation();
 
-// Weapon drop settings
+	// 무기 드롭 설정
 	UAT_WaitDelay* AbilityTaskDelay_UseItem = UAT_WaitDelay::GetNewAbilityTask_WaitDelay(this, UseItemTiming);
 	AbilityTaskDelay_UseItem->OnFinish.AddDynamic(this, &UGA_CharacterUseItem::UseItemFromUSACharacter);
 	AbilityTaskDelay_UseItem->ReadyForActivation();
 
-// move settings
+	// 이동 설정
 	UAT_ChangeCharacterMovementInfo* AbilityTask_ChangeMovementInfo = UAT_ChangeCharacterMovementInfo::GetNewAbilityTask_ChangeCharacterMovementInfo
 	(this, MyCharacter, WalkMovementInfo);
 	OnEndAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleEndAbilityTask);
 	OnCancelAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleCancelAbilityTask);
 	AbilityTask_ChangeMovementInfo->ReadyForActivation();
 
-// animation settings
+	// 애니메이션 설정
 	//FPlayAnimMontageData AnimMontageData;
 	//AnimMontageData.AnimMontage = ...;
 	//AnimMontageData.AnimMontageRate = 1.0f;
@@ -102,7 +102,7 @@ void UGA_CharacterUseItem::EndAbility(const FGameplayAbilitySpecHandle Handle, c
 
 void UGA_CharacterUseItem::UseItemFromUSACharacter()
 {
-// Component settings
+	// 컴포넌트 설정
 	ACharacter* MyCharacter = nullptr;
 	AUSACharacterBase* MyUSACharacter = nullptr;
 

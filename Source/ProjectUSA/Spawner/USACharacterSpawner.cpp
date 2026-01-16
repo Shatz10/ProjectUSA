@@ -151,7 +151,7 @@ void AUSACharacterSpawner::OnPlayerDetectBoxOverlapBegin(UPrimitiveComponent* Ov
 		);
 	}
 
-// Play level sequence
+	// 레벨 시퀀스 재생
 	AUSAGameModeBase* USAGameModeBase = Cast<AUSAGameModeBase>(GetWorld()->GetAuthGameMode());
 
 	if (IsValid(USAGameModeBase))
@@ -166,6 +166,6 @@ void AUSACharacterSpawner::OnPlayerDetectBoxOverlapBegin(UPrimitiveComponent* Ov
 
 void AUSACharacterSpawner::MulticastRPC_PlaySpawnSound_Implementation()
 {
-// Perform all server clients
+	// 서버 클라 모두 수행
 	UGameplayStatics::PlaySound2D(GetWorld(), CharacterSpawnSound);
 }

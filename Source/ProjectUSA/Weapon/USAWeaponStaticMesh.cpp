@@ -18,7 +18,7 @@
 
 AUSAWeaponStaticMesh::AUSAWeaponStaticMesh()
 {
-// create mesh
+	// 메쉬 생성
 	WeaponMeshComponent = CreateDefaultSubobject <UStaticMeshComponent>(TEXT("Weapon Static Mesh"));
 	RootComponent = WeaponMeshComponent;
 
@@ -69,7 +69,7 @@ void AUSAWeaponStaticMesh::SetWeaponPhysics(bool IsDropping, bool IsFirst)
 
 			//WeaponMeshComponent->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 
-// Random values ​​are only performed on the server
+			// 랜덤 값은 서버에서만 수행
 			if (IsFirst == false)
 			{
 				if (UKismetSystemLibrary::IsServer(GetWorld()) == true)

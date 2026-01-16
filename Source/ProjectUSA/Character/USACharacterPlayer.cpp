@@ -243,7 +243,7 @@ void AUSACharacterPlayer::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-// Performed on a regular client
+	// 일반 클라에서 수행
 	SetupGAS();
 
 	if (GetPlayerState<APlayerState>() && GetPlayerState<APlayerState>()->GetPlayerName() != "")
@@ -340,7 +340,7 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor()
 		return;
 	}
 
-// Set target based on camera direction
+	// 카메라 방향 기준으로 타깃 설정
 	SetCurrentTargetableActorUsingForwardVector(LocalPlayerController->PlayerCameraManager->GetCameraRotation().Vector(), CurrentTargetableActor);
 }
 
@@ -351,7 +351,7 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor_Instant()
 	//	return;
 	//}
 
-// Set target based on player direction
+	// 플레이어 방향 기준으로 타깃 설정
 	//SetCurrentTargetableActorUsingForwardVector(GetUSACharacterDirection_InputMovement(), CurrentTargetableActor_Instant);
 
 	if (LocalPlayerController == nullptr
@@ -360,13 +360,13 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor_Instant()
 		return;
 	}
 
-// Set target based on camera direction
+	// 카메라 방향 기준으로 타깃 설정
 	SetCurrentTargetableActorUsingForwardVector(LocalPlayerController->PlayerCameraManager->GetCameraRotation().Vector(), CurrentTargetableActor_Instant);
 }
 
 void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVector& InDirection, TObjectPtr<class AActor>& InOutTargetActorPointer)
 {
-// Get all actors with overlap
+	// 오버랩으로 모든 액터 가져오기
 	FVector SourceLocation = GetActorLocation();
 	//float DistanceFromSourceToTarget = 0.0f;
 
@@ -383,7 +383,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), SourceLocation, TargetableActorRange, TraceObjectTypes, SeekClass, IgnoreActors, TempTargetableActors_Overlap);
 
-// Get targetable actors using the interface
+	// 인터페이스를 이용하여 타깃 가능한 액터 가져오기
 	TArray<TPair<float, AActor*>> TempTargetableActors_Scored;
 	const float ScoreWeight = 0.6f;
 	const float DotCutoff = 0.1f;
@@ -396,7 +396,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 		//	return 0;
 		//}
 
-// Prevent same player team action
+		// 같은 플레이어 팀 동작 방지
 		AUSACharacterPlayer* TempCharacterPlayer = Cast<AUSACharacterPlayer>(TempActor);
 	
 		if (TempCharacterPlayer)
@@ -416,36 +416,36 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 		//if (TempActor->GetClass()->ImplementsInterface(UUSATargetableInterface::StaticClass()))
 		//{
-// If targeting is not possible, ignore
+			// 만약 타겟팅이 불가능 하면 무시
 			if (Cast<IUSATargetableInterface>(TempActor)->GetIsTargetableCurrently() == false)
 			{
 				continue;
 			}
 
-// calculate score
+			// 점수 계산
 
-// 1. Distance
+			// 1. 거리
 			float DistanceFromSourceToTarget = (TempActor->GetActorLocation() - SourceLocation).SquaredLength();
 			float CurrentTempActorScore_Distance = 1 - (DistanceFromSourceToTarget / (TargetableActorRange * TargetableActorRange));
 
-// 2. Direction (dot product)
+			// 2. 방향 (내적)
 			float CurrentTempActorScore_Direction = 0.1f;
 	
 			FVector DirectionFromSourceToTarget = TempActor->GetActorLocation() - SourceLocation;
 			DirectionFromSourceToTarget.Normalize();
 
-// If PlaceCamera is running, determine the direction of the character
+			// 만약 PlaceCamera가 작동 중이라면 캐릭터의 방향으로 판단
 			if (IsValid(CurrentPlacedCameraActor) == true)
 			{
 				CurrentTempActorScore_Direction = FVector::DotProduct(DirectionFromSourceToTarget, GetActorForwardVector());
 			}
 			else
 			{
-// Difference between temporary and focus
+				// 임시와 포커스의 차이점
 				CurrentTempActorScore_Direction = FVector::DotProduct(DirectionFromSourceToTarget, InDirection);
 			}
 
-// If it points in the opposite direction, ignore it
+			// 만약 정 반대의 방향을 가리키면 무시
 			if (CurrentTempActorScore_Direction < DotCutoff)
 			{
 				continue;
@@ -460,7 +460,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 	TempTargetableActors_Scored.Sort();
 
-// Set the nearest actor as target
+	// 가장 가까운 액터를 타깃으로 설정
 	if (TempTargetableActors_Scored.IsEmpty() == false)
 	{
 		InOutTargetActorPointer = TempTargetableActors_Scored[TempTargetableActors_Scored.Num() - 1].Value;
