@@ -89,7 +89,7 @@ bool UUSAAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& 
 {
 	bool bOriginalResult = Super::PreGameplayEffectExecute(Data);
 
-	// ... 무적 및 패링 관련 추가
+	//... Added invincibility and parrying
 
 	return bOriginalResult;
 }

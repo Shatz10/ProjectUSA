@@ -3,7 +3,7 @@
 
 #include "UserWidget/USAUserWidget.h"
 
-#include "Windows/WindowsApplication.h"  // Windows API 사용을 위해 필요
+#include "Windows/WindowsApplication.h" // Required to use Windows API
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>
 #include "Windows/HideWindowsPlatformTypes.h"

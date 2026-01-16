@@ -60,10 +60,10 @@ AActor* AUSAGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 	TArray<APlayerStart*> OccupiedStartPoints;
 	UWorld* World = GetWorld();
 
-	// 체크포인트
+	//checkpoint
 	AUSAPlayerController* USAPlayerController = Cast<AUSAPlayerController>(Player);
 
-	// USA를 안가지면 기존 함수를 수행
+	//If you do not have USA, perform the existing function
 	if (IsValid(USAPlayerController) == false)
 	{
 		return Super::ChoosePlayerStart_Implementation(Player);
@@ -93,7 +93,7 @@ AActor* AUSAGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 				continue;
 			}
 
-			// 인덱스가 맞는 플레이어 스타트들만 고르기
+			//Select only player starts with matching index
 			if (USAPlayerStart->GetPlayerStartIndex() != DesiredCheckpointIndex)
 			{
 				continue;

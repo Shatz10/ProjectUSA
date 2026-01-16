@@ -11,7 +11,7 @@
 //{
 //	bReplicates = true;
 //	
-//	// 아래 컴포넌트들의 이름을 바꾸면 인식을 못하는 것 같다.
+//// If you change the names of the components below, they don't seem to be recognized.
 //	ASC = CreateDefaultSubobject <UAbilitySystemComponent>(TEXT("Ability System Component"));
 //	AttributeSet = CreateDefaultSubobject <UUSAAttributeSet>(TEXT("USA Attribute Set"));
 //

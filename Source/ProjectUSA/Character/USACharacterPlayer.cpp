@@ -101,6 +101,7 @@ void AUSACharacterPlayer::Tick(float DeltaTime)
 
 }
 
+
 //
 
 void AUSACharacterPlayer::InitPlayerController()
@@ -135,6 +136,7 @@ void AUSACharacterPlayer::InitTargetingCameraActor()
 		TargetingCameraActor->SetSourceActor(this);
 	}
 }
+
 
 //
 
@@ -213,6 +215,7 @@ void AUSACharacterPlayer::PossessedBy(AController* NewController)
 	}
 }
 
+
 //
 
 void AUSACharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -237,13 +240,14 @@ void AUSACharacterPlayer::SetupGAS()
 	Super::SetupGAS();
 }
 
+
 //
 
 void AUSACharacterPlayer::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// 일반 클라에서 수행
+	//Performed on a regular client
 	SetupGAS();
 
 	if (GetPlayerState<APlayerState>() && GetPlayerState<APlayerState>()->GetPlayerName() != "")
@@ -273,7 +277,9 @@ void AUSACharacterPlayer::OnRep_ASC()
 	CheckCharacterByGameplayTags();
 }
 
+
 //
+
 
 //void AUSACharacterPlayer::DoDrop(const FInputActionValue& Value)
 //{
@@ -301,6 +307,7 @@ void AUSACharacterPlayer::OnPickableDetectBoxOverlapBegin(UPrimitiveComponent* O
 		PickUpSomething(PickableInterface);
 	}
 }
+
 
 //
 
@@ -330,6 +337,7 @@ void AUSACharacterPlayer::LookTarget(const struct FInputActionValue& Value)
 	}
 }
 
+
 //
 
 void AUSACharacterPlayer::UpdateCurrentTargetableActor()
@@ -340,7 +348,7 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor()
 		return;
 	}
 
-	// 카메라 방향 기준으로 타깃 설정
+	//Target setting based on camera direction
 	SetCurrentTargetableActorUsingForwardVector(LocalPlayerController->PlayerCameraManager->GetCameraRotation().Vector(), CurrentTargetableActor);
 }
 
@@ -351,7 +359,7 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor_Instant()
 	//	return;
 	//}
 
-	// 플레이어 방향 기준으로 타깃 설정
+	//Target based on player direction
 	//SetCurrentTargetableActorUsingForwardVector(GetUSACharacterDirection_InputMovement(), CurrentTargetableActor_Instant);
 
 	if (LocalPlayerController == nullptr
@@ -360,13 +368,13 @@ void AUSACharacterPlayer::UpdateCurrentTargetableActor_Instant()
 		return;
 	}
 
-	// 카메라 방향 기준으로 타깃 설정
+	//Target setting based on camera direction
 	SetCurrentTargetableActorUsingForwardVector(LocalPlayerController->PlayerCameraManager->GetCameraRotation().Vector(), CurrentTargetableActor_Instant);
 }
 
 void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVector& InDirection, TObjectPtr<class AActor>& InOutTargetActorPointer)
 {
-	// 오버랩으로 모든 액터 가져오기
+	//Get all actors with overlap
 	FVector SourceLocation = GetActorLocation();
 	//float DistanceFromSourceToTarget = 0.0f;
 
@@ -383,7 +391,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), SourceLocation, TargetableActorRange, TraceObjectTypes, SeekClass, IgnoreActors, TempTargetableActors_Overlap);
 
-	// 인터페이스를 이용하여 타깃 가능한 액터 가져오기
+	//Retrieving targetable actors using an interface
 	TArray<TPair<float, AActor*>> TempTargetableActors_Scored;
 	const float ScoreWeight = 0.6f;
 	const float DotCutoff = 0.1f;
@@ -396,7 +404,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 		//	return 0;
 		//}
 
-		// 같은 플레이어 팀 동작 방지
+		//Prevent same player team action
 		AUSACharacterPlayer* TempCharacterPlayer = Cast<AUSACharacterPlayer>(TempActor);
 	
 		if (TempCharacterPlayer)
@@ -416,36 +424,36 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 		//if (TempActor->GetClass()->ImplementsInterface(UUSATargetableInterface::StaticClass()))
 		//{
-			// 만약 타겟팅이 불가능 하면 무시
+			//If targeting is not possible, ignore
 			if (Cast<IUSATargetableInterface>(TempActor)->GetIsTargetableCurrently() == false)
 			{
 				continue;
 			}
 
-			// 점수 계산
+			//score calculation
 
-			// 1. 거리
+			//1. Distance
 			float DistanceFromSourceToTarget = (TempActor->GetActorLocation() - SourceLocation).SquaredLength();
 			float CurrentTempActorScore_Distance = 1 - (DistanceFromSourceToTarget / (TargetableActorRange * TargetableActorRange));
 
-			// 2. 방향 (내적)
+			//2. Direction (dot product)
 			float CurrentTempActorScore_Direction = 0.1f;
 	
 			FVector DirectionFromSourceToTarget = TempActor->GetActorLocation() - SourceLocation;
 			DirectionFromSourceToTarget.Normalize();
 
-			// 만약 PlaceCamera가 작동 중이라면 캐릭터의 방향으로 판단
+			//If PlaceCamera is running, determine the character's orientation
 			if (IsValid(CurrentPlacedCameraActor) == true)
 			{
 				CurrentTempActorScore_Direction = FVector::DotProduct(DirectionFromSourceToTarget, GetActorForwardVector());
 			}
 			else
 			{
-				// 임시와 포커스의 차이점
+				//Difference Between Temporary and Focus
 				CurrentTempActorScore_Direction = FVector::DotProduct(DirectionFromSourceToTarget, InDirection);
 			}
 
-			// 만약 정 반대의 방향을 가리키면 무시
+			//If it points in the opposite direction, ignore it.
 			if (CurrentTempActorScore_Direction < DotCutoff)
 			{
 				continue;
@@ -460,7 +468,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 
 	TempTargetableActors_Scored.Sort();
 
-	// 가장 가까운 액터를 타깃으로 설정
+	//Target the closest actor
 	if (TempTargetableActors_Scored.IsEmpty() == false)
 	{
 		InOutTargetActorPointer = TempTargetableActors_Scored[TempTargetableActors_Scored.Num() - 1].Value;
@@ -470,6 +478,7 @@ void AUSACharacterPlayer::SetCurrentTargetableActorUsingForwardVector(const FVec
 		InOutTargetActorPointer = nullptr;
 	}
 }
+
 
 //
 
@@ -613,6 +622,7 @@ void AUSACharacterPlayer::FinishTargeting()
 	ManageAllCamera();
 }
 
+
 //
 
 void AUSACharacterPlayer::StartPlacedCamera(AUSAPlacedCameraActor* InActor)
@@ -676,6 +686,7 @@ void AUSACharacterPlayer::FinishPlacedCamera(AUSAPlacedCameraActor* InActor)
 	StartTargeting();
 }
 
+
 //
 
 void AUSACharacterPlayer::ManageAllCamera()
@@ -729,6 +740,7 @@ void AUSACharacterPlayer::ManageAllCamera()
 	}
 }
 
+
 //
 
 void AUSACharacterPlayer::StartCameraShake_HitSuccess(TSubclassOf<class UDamageType> DamageType)
@@ -748,6 +760,7 @@ void AUSACharacterPlayer::StartCameraShake_HitSuccess(TSubclassOf<class UDamageT
 
 	LocalPlayerController->PlayerCameraManager->StartCameraShake(HitSuccessCameraShakes[DamageType]);
 }
+
 
 //
 
@@ -785,6 +798,7 @@ void AUSACharacterPlayer::SetLocalPlayerControllerInput(bool bIsEnable)
 		break;
 	}
 }
+
 
 
 //

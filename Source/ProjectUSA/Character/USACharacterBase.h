@@ -14,10 +14,10 @@
 #include "Interface/USADamageableInterface.h"
 #include "Interface/USAPickableInterface.h"
 
-// 어트리뷰트 접근을 위한 헤더
+//Header for attribute access
 #include "GameplayEffectTypes.h"
 
-// 체크할 태그를 가져오기 위한 헤더
+//Header to retrieve tags to check
 #include "Tag/USAGameplayTags.h"
 
 #include "Enum/USAEnums.h"
@@ -145,7 +145,7 @@ protected:
 
 	//
 
-	// 간이 아이템 인벤토리
+	//Simple item inventory
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentOwnedItems, VisibleAnywhere, BlueprintReadOnly, Category = "USA Character Item")
 	TArray<TSubclassOf<class AUSAItemBase>> CurrentOwnedItems;
 
@@ -397,7 +397,7 @@ public:
 
 	//
 
-	// Weapon의 OnRep을 통해 호출
+	//Called via Weapon's OnRep
 	bool SetCurrentWeapon(int32 InEquipIndex, class AUSAWeaponBase* InWeapon);
 
 	UFUNCTION(BlueprintCallable)
@@ -603,7 +603,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character GAS")
 	TArray <FUSAGameplayAbilityHandle> GameplayAbilities_Active;
 
-	// GameplayTag를 직접 붙이는 과정은 보류
+	//The process of directly attaching GameplayTag is postponed.
 
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character GAS")
 	//TMap <class UInputAction*, FUSAGameplayTagInputInfo> GameplayTagInputInfos;
@@ -678,7 +678,7 @@ protected:
 	TArray <TSubclassOf<class UGameplayAbility>> GameplayAbilities_ETC;
 
 	
-	// 중간 접속 시, 태그를 이용하여 캐릭터 상태를 갱신하고자 함
+	//During intermediate connection, you want to update the character status using tags.
 	//const TArray <FGameplayTag> CheckGameplayTagList =
 	//{
 	//	USA_CHARACTER_STATE_CROUCH,

@@ -20,7 +20,7 @@ public class ProjectUSA : ModuleRules
             "GameplayTags"
         });
 
-        // Window32 기능 사용하기 위함
+        //To use Windows32 features
         if (Target.Platform == UnrealTargetPlatform.Win64)
         {
             PublicAdditionalLibraries.Add("user32.lib");

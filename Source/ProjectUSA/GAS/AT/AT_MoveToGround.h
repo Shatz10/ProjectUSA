@@ -6,7 +6,7 @@
 #include "GAS/AT/USAAbilityTask.h"
 #include "AT_MoveToGround.generated.h"
 
-//// 땅에 닿을 시 호출할 델리게이트
+//// Delegate to be called when touching the ground
 //DECLARE_MULTICAST_DELEGATE(FOnBeginMovement);
 //DECLARE_MULTICAST_DELEGATE(FOnGroundReached);
 ////DECLARE_MULTICAST_DELEGATE(FOnEndTask);

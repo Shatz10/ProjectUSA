@@ -17,7 +17,7 @@
 #include "AbilitySystemComponent.h"
 
 
-// TODO: 공중 로테이션 다듬어 볼 것
+//TODO: Refine your aerial rotation
 UAT_MoveToLocationByVelocity* UAT_MoveToLocationByVelocity::GetNewAbilityTask_MoveToLocationByVelocity
 (UGameplayAbility* OwningAbility, 
 	FName TaskInstanceName, 

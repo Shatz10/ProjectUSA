@@ -116,7 +116,7 @@ void UAT_SpawnActors::SpawnActorAndSetNextTimer()
 
 			if (NewActor)
 			{
-				// 스폰된 액터 처리
+				//Handling spawned actors
 				IUSASpawnableInterface* USASpawnableInterface = Cast<IUSASpawnableInterface>(NewActor);
 
 				if (USASpawnableInterface != nullptr)
@@ -126,7 +126,7 @@ void UAT_SpawnActors::SpawnActorAndSetNextTimer()
 			}
 			else
 			{
-				// 스폰에 실패한 경우 처리
+				//Handling if spawning fails
 			}
 		}
 

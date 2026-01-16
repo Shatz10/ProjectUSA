@@ -29,7 +29,7 @@ void AUSAPlayerController::BeginPlay()
     UUSAGameInstance* USAGameInstance = Cast <UUSAGameInstance>(GetGameInstance());
     AUSAPlayerState* USAPlayerState = GetPlayerState<AUSAPlayerState>();
 
-    // HUD 가져오기
+    //Get HUD
     LocalUSAHUD = Cast<AUSAHUD>(GetHUD());
 }
 
@@ -42,7 +42,7 @@ void AUSAPlayerController::BeginPlayingState()
     UUSAGameInstance* USAGameInstance = Cast <UUSAGameInstance>(GetGameInstance());
     AUSAPlayerState* USAPlayerState = GetPlayerState<AUSAPlayerState>();
 
-    // 시작시 호출
+    //Called at startup
     if (IsLocalController() == true)
     {
         if (USACharacterOwner)
@@ -60,7 +60,7 @@ void AUSAPlayerController::BeginPlayingState()
             // USAHUD->InitPlayerHUD(USACharacterOwner);
         }
 
-        // 첫 인트로가 없는 경우
+        //If there is no first intro
         if (IsValid(UGameplayStatics::GetActorOfClass(GetWorld(), AUSALevelSequenceBegin::StaticClass())) == false)
         {
             //USAHUD->PlayUserWidgetAnimation_Panel(true, false);

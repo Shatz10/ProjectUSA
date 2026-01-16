@@ -29,7 +29,7 @@ void UUSAGameInstance::OnStart()
     auto& AbilitySystem = UAbilitySystemGlobals::Get();
     if (!AbilitySystem.IsAbilitySystemGlobalsInitialized())
     {
-        // 어빌리티 관련 캐시 에러를 방지하기 위해 호출해야 하는 함수
+        //Functions that must be called to prevent ability-related cache errors
         AbilitySystem.InitGlobalData();
     }
 }

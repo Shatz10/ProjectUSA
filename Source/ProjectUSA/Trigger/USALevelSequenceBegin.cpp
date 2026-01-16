@@ -31,7 +31,7 @@ void AUSALevelSequenceBegin::PlayBeginLevelSequence()
 		return;
 	}
 
-	// 로컬
+	//local
 	if (bIsLocalEvent)
 	{
 		AUSAGameStateBase* USAGameStateBase = Cast <AUSAGameStateBase>(GetWorld()->GetGameState());
@@ -43,7 +43,7 @@ void AUSALevelSequenceBegin::PlayBeginLevelSequence()
 
 		USAGameStateBase->PlayLevelSequenceLocal(LevelSequenceActor);
 	}
-	// 멀티
+	//multi
 	else
 	{
 		AUSAGameModeBase* USAGameModeBase = Cast<AUSAGameModeBase>(GetWorld()->GetAuthGameMode());

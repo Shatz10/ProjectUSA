@@ -12,7 +12,7 @@
 
 #include "AT_TraceAttack.generated.h"
 
-// 우선 Sphere 탐지만 진행
+//First, only Sphere detection is performed.
 //UENUM(BlueprintType)
 //enum class EAttackTraceShape : uint8
 //{

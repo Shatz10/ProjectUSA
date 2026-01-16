@@ -26,7 +26,7 @@ void UGA_CharacterDropWeapon::ActivateAbility(const FGameplayAbilitySpecHandle H
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	// 컴포넌트 설정
+	//Component settings
 	ACharacter* MyCharacter = nullptr;
 	AUSACharacterBase* MyUSACharacter = nullptr;
 
@@ -54,24 +54,24 @@ void UGA_CharacterDropWeapon::ActivateAbility(const FGameplayAbilitySpecHandle H
 		return;
 	}
 
-	// 종료 설정
+	//Shutdown Settings
 	UAT_WaitDelay* AbilityTaskDelay = UAT_WaitDelay::GetNewAbilityTask_WaitDelay(this, WeaponDropPeriod);
 	AbilityTaskDelay->OnFinish.AddDynamic(this, &UGA_CharacterDropWeapon::SimpleEndAbility);
 	AbilityTaskDelay->ReadyForActivation();
 
-	// 무기 드롭 설정
+	//Weapon Drop Settings
 	UAT_WaitDelay* AbilityTaskDelay_DropWeapon = UAT_WaitDelay::GetNewAbilityTask_WaitDelay(this, WeaponDropTiming);
 	AbilityTaskDelay_DropWeapon->OnFinish.AddDynamic(this, &UGA_CharacterDropWeapon::DropWeaponFromUSACharacter);
 	AbilityTaskDelay_DropWeapon->ReadyForActivation();
 
-	// 이동 설정
+	//Go Settings
 	UAT_ChangeCharacterMovementInfo* AbilityTask_ChangeMovementInfo = UAT_ChangeCharacterMovementInfo::GetNewAbilityTask_ChangeCharacterMovementInfo
 	(this, MyCharacter, WalkMovementInfo);
 	OnEndAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleEndAbilityTask);
 	OnCancelAbility.AddDynamic(AbilityTask_ChangeMovementInfo, &UAT_ChangeCharacterMovementInfo::SimpleCancelAbilityTask);
 	AbilityTask_ChangeMovementInfo->ReadyForActivation();
 
-	// 애니메이션 설정
+	//Animation Settings
 	UAT_PlayAnimMontages* AbilityTaskMontage = UAT_PlayAnimMontages::GetNewAbilityTask_PlayAnimMontages(this, ActionAnimMontageData);
 	OnEndAbility.AddDynamic(AbilityTaskMontage, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
 	OnCancelAbility.AddDynamic(AbilityTaskMontage, &UAT_PlayAnimMontages::SimpleEndAbilityTask);
@@ -96,7 +96,7 @@ void UGA_CharacterDropWeapon::EndAbility(const FGameplayAbilitySpecHandle Handle
 
 void UGA_CharacterDropWeapon::DropWeaponFromUSACharacter()
 {
-	// 컴포넌트 설정
+	//Component settings
 	ACharacter* MyCharacter = nullptr;
 	AUSACharacterBase* MyUSACharacter = nullptr;
 

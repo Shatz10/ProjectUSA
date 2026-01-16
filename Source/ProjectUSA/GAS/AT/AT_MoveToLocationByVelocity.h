@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-// 해당 어빌리티 태스크는 기본으로 제공하는 UAbilityTask_MoveToLocation을 상속한 것임
+//The ability task inherits the default UAbilityTask_MoveToLocation.
 
 #pragma once
 

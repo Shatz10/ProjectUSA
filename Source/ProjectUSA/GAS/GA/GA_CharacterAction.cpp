@@ -102,10 +102,10 @@ void UGA_CharacterAction::CancelAbility(const FGameplayAbilitySpecHandle Handle,
 {
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 
-	// 어트리뷰트 종료
+	//Attribute end
 	ResetArmorAttributeToBase();
 
-	// 블루프린트에서 지정한 Cancel 수행
+	//Perform Cancel specified in blueprint
 	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Calling BP Cancel hook."), *GetNameSafe(this));
 	K2_DoSomething_Cancel();
 }
@@ -114,10 +114,10 @@ void UGA_CharacterAction::EndAbility(const FGameplayAbilitySpecHandle Handle, co
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
-	// 어트리뷰트 종료
+	//Attribute end
 	ResetArmorAttributeToBase();
 
-	// 블루프린트에서 지정한 End 수행
+	//Perform End specified in blueprint
 	UE_LOG(LogProjectUSA, Verbose, TEXT("[GA_CharacterAction][%s] Calling BP End hook. bWasCancelled=%s"),
 		*GetNameSafe(this),
 		bWasCancelled ? TEXT("true") : TEXT("false"));
@@ -640,7 +640,7 @@ void UGA_CharacterAction::DoSomethingWithTargetVector()
 
 bool UGA_CharacterAction::GetIsAbleToActivateCondition()
 {
-	// 컴포넌트 검사
+	//Component inspection
 	ACharacter* MyCharacter = nullptr;
 	UCharacterMovementComponent* MyCharacterMovementComponent = nullptr;
 

@@ -48,6 +48,6 @@ public:
 	float PrevSpawnActorTime = 0.0f;
 	int CurrentSpwanActorIndex = 0;
 
-	// 방향
+	//direction
 	FVector TargetVector;
 };

@@ -25,16 +25,16 @@
 
 UUSAGameplayAbility::UUSAGameplayAbility()
 {
-	// GAS 문서에서도 아래의 옵션은 설정하지 말라고 명시되어 있지만...
-	// GameplayAbility간 RPC 통신을 위해서는 아래의 옵션을 켜줘야 한다.
+	//Even though the GAS document clearly states not to set the options below...
+	//For RPC communication between GameplayAbility, the options below must be turned on.
 
 	// 2024.05.04
-	// 어빌리티에서 RPC 통신은 가능하지만, 기존의 언리얼에서 사용하는 방식은 오류를 발생시킬 수 있다.
-	// 그러므로 ASC에서 사전 정의된, CallServerSetReplicatedTargetData, ConsumeClientReplicatedTargetData등의 함수를 활용할 것
-	// 그래도 상식적으로 RPC를 이용하기 위해선 Replicate Policty를 켜줘야 한다고 판단
+	//RPC communication is possible in Ability, but the method used in existing Unreal may cause errors.
+	//Therefore, use functions predefined in ASC, such as CallServerSetReplicatedTargetData and ConsumeClientReplicatedTargetData.
+	//Still, common sense dictates that Replicate Policy must be turned on in order to use RPC.
 
-	// ... 그렇지만, RPC를 이용하는 것 보단 반응이 떨어지기 때문에, 사용자 경험에 부정적이라고 판단
-	// 그러므로 RPC를 이용하는 것으로 코드 작성 수행
+	//... However, because it is less responsive than using RPC, it is judged to be negative for user experience.
+	//Therefore, writing code is performed using RPC.
 
 	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
 
