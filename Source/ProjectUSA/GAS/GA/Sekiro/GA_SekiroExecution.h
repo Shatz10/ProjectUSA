@@ -43,5 +43,5 @@ protected:
 	UFUNCTION()
 	void OnMontageCancelled();
 
-	AActor* FindExecutionTarget();
+	virtual AActor* FindExecutionTarget();
 };

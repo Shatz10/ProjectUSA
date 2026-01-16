@@ -2,6 +2,7 @@
 
 
 #include "GAS/GA/Sekiro/GA_SekiroStealthKill.h"
+#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"

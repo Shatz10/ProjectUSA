@@ -2,6 +2,7 @@
 
 
 #include "GAS/GA/Sekiro/GA_SekiroCombatArt.h"
+#include "AbilitySystemInterface.h"
 #include "GAS/AttributeSet/USAAttributeSet.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 

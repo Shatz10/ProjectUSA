@@ -2,6 +2,7 @@
 
 
 #include "GAS/GA/Sekiro/GA_SekiroMikiriCounter.h"
+#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GAS/AttributeSet/USAAttributeSet.h"

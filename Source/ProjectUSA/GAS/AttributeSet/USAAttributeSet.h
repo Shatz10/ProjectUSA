@@ -116,6 +116,10 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_MaxPosture, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData MaxPosture;
 
+	/** 架势恢复速度（可复制） */
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Attribute")
+	FGameplayAttributeData PostureRecoverRate;
+
 	/** 当前纸人数量 (Spirit Emblems) */
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentSpiritEmblems, BlueprintReadOnly, Category = "Attribute")
 	FGameplayAttributeData CurrentSpiritEmblems;

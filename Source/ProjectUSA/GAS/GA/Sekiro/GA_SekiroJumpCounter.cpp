@@ -2,6 +2,7 @@
 
 
 #include "GAS/GA/Sekiro/GA_SekiroJumpCounter.h"
+#include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
