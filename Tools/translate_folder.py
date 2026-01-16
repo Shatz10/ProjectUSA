@@ -112,18 +112,32 @@ class FolderTranslator:
             self.use_glossary = False
 
     def translate_text(self, text: str) -> str:
-        """翻译文本，带术语保护"""
+        """翻译文本，带缩进保护和术语保护"""
         if not text or not str(text).strip():
             return text
+            
+        # 1. 提取并保留前导空格/缩进
+        match = re.match(r'^(\s*)', text)
+        leading_ws = match.group(1) if match else ""
+        content_to_translate = text[len(leading_ws):].rstrip()
         
-        # 重要：如果文本不包含源语言字符，直接返回原文，以防损坏代码/URL等
-        if not self.contains_source_language(text):
+        # 2. 如果除去缩进后的内容不包含源语言字符，直接返回原文
+        if not self.contains_source_language(content_to_translate):
             return text
             
-        protected_text = str(text)
+        # 3. 针对代码注释符号的额外保护 (避免 // 被翻译成 / / 或丢失)
+        prefix = ""
+        if content_to_translate.startswith("//"):
+            prefix = "//"
+            content_to_translate = content_to_translate[2:]
+        elif content_to_translate.startswith("/*"):
+            prefix = "/*"
+            content_to_translate = content_to_translate[2:]
+            
+        protected_text = content_to_translate
         matched_terms = {}
         
-        # 1. 占位符替换术语 (如果有术语表)
+        # 4. 占位符替换术语 (如果有术语表)
         if self.use_glossary and self.glossary_df is not None:
             for i, row in self.glossary_df.iterrows():
                 term = str(row[self.source_col])
@@ -142,10 +156,10 @@ class FolderTranslator:
                     protected_text = protected_text.replace(term, placeholder)
                     matched_terms[placeholder] = target_val
         
-        # 2. 调用翻译
+        # 4. 调用翻译
         translated = self.call_google_translate(protected_text)
         
-        # 3. 还原术语
+        # 5. 还原术语
         if matched_terms:
             for ph, target_val in matched_terms.items():
                 term_id = ph.strip("#")
@@ -153,7 +167,8 @@ class FolderTranslator:
                 pattern = re.compile(r'###\s*' + re.escape(term_id) + r'\s*###', re.IGNORECASE)
                 translated = pattern.sub(target_val, translated)
         
-        return translated
+        # 6. 重新拼接缩进和前缀
+        return leading_ws + prefix + translated
 
     def call_google_translate(self, text: str) -> str:
         """带重试机制的翻译调用"""
